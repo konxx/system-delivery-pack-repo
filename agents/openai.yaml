@@ -1,0 +1,5 @@
+interface:
+  display_name: "System Delivery Pack"
+  short_description: "Generate code, screenshots, and docs"
+  default_prompt: "Use $system-delivery-pack to generate a system package with code, screenshots, agreement, and manual."
+
