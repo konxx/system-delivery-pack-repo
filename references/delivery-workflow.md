@@ -5,12 +5,12 @@
 1. Extract the system name and user roles from the brief.
 2. Plan 8-10 first-level modules and keep that module map stable.
 3. Create the output tree with `scripts/prepare_output_tree.py`.
-4. Build the full-stack code pack under `outputs/code/` from the module map.
-5. Build the runnable frontend demo under `outputs/` from the same module map.
-6. Launch the demo and capture Playwright screenshots into `outputs/photos/`.
-7. Copy the agreement template into `outputs/Template/` and edit only two system-name text slots.
+4. Build the full-stack code pack under `<system-folder>/code/` from the module map.
+5. Build the runnable frontend demo under `<system-folder>/demo/` from the same module map.
+6. Launch the demo and capture Playwright screenshots into `<system-folder>/photos/`.
+7. Copy the agreement template into `<system-folder>/docs/Template/` and edit only two system-name text slots.
 8. Generate the manual outline with `scripts/build_manual_outline.py`.
-9. Turn the agreement and manual into final `.docx` files in `outputs/docx/`.
+9. Turn the agreement and manual into final `.docx` files in `<system-folder>/docs/`.
 10. Report assumptions, selected ui prompt, final module count, saved paths, and any missing validations.
 
 ## Full-stack code pack rules
@@ -41,7 +41,7 @@
 - Preserve the original template wording.
 - Change only the title-level system name and one body-level project-name reference.
 - If the template includes explicit placeholders, replace those exact placeholders and nothing else.
-- Keep the working copy in `outputs/Template/` and place only the final `.docx` in `outputs/docx/`.
+- Keep the working copy in `<system-folder>/docs/Template/` and place the final `.docx` in `<system-folder>/docs/`.
 
 ## Manual rules
 

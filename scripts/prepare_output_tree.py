@@ -27,18 +27,18 @@ def copy_if_missing(source: Path, target: Path) -> bool:
 
 
 def build_manifest(root: Path, system_name: str, system_folder: str) -> dict:
-    outputs_dir = root / "outputs"
-    template_dir = outputs_dir / "Template"
-    frontend_dir = outputs_dir / f"{system_folder}-frontend"
+    system_dir = root / system_folder
+    docs_dir = system_dir / "docs"
+    template_dir = docs_dir / "Template"
     return {
         "system_name": system_name,
         "system_folder": system_folder,
         "paths": {
-            "outputs": str(outputs_dir),
-            "fullstack_code": str(outputs_dir / "code" / system_folder),
-            "frontend_demo": str(frontend_dir),
-            "photos": str(outputs_dir / "photos"),
-            "docx": str(outputs_dir / "docx"),
+            "system_root": str(system_dir),
+            "fullstack_code": str(system_dir / "code"),
+            "frontend_demo": str(system_dir / "demo"),
+            "photos": str(system_dir / "photos"),
+            "docs": str(docs_dir),
             "templates": str(template_dir),
         },
         "template_files": {
@@ -50,7 +50,7 @@ def build_manifest(root: Path, system_name: str, system_folder: str) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Create outputs/code, outputs/photos, outputs/docx, outputs/Template, and the runnable frontend folder.",
+        description="Create <system>/code, <system>/demo, <system>/photos, <system>/docs, and <system>/docs/Template.",
     )
     parser.add_argument("--root", default=".", help="Workspace root")
     parser.add_argument("--system-name", required=True, help="Display name of the system")
@@ -63,14 +63,14 @@ def main() -> int:
     system_name = args.system_name.strip()
     system_folder = safe_path_name(system_name)
 
-    outputs_dir = root / "outputs"
-    code_dir = outputs_dir / "code" / system_folder
-    photos_dir = outputs_dir / "photos"
-    docx_dir = outputs_dir / "docx"
-    template_dir = outputs_dir / "Template"
-    frontend_dir = outputs_dir / f"{system_folder}-frontend"
+    system_dir = root / system_folder
+    code_dir = system_dir / "code"
+    photos_dir = system_dir / "photos"
+    docs_dir = system_dir / "docs"
+    template_dir = docs_dir / "Template"
+    frontend_dir = system_dir / "demo"
 
-    for path in (code_dir, photos_dir, docx_dir, template_dir, frontend_dir):
+    for path in (system_dir, code_dir, photos_dir, docs_dir, template_dir, frontend_dir):
         path.mkdir(parents=True, exist_ok=True)
 
     agreement_seed_target = template_dir / f"{system_folder}-agreement-template.md"
@@ -88,6 +88,7 @@ def main() -> int:
 
     print(f"Created output tree for: {system_name}")
     print(f"System folder: {system_folder}")
+    print(f"System root: {system_dir}")
     print(f"Manifest: {manifest_path}")
     if copied_files:
         print("Copied seed templates:")
@@ -100,4 +101,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

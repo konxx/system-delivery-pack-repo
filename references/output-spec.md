@@ -2,16 +2,14 @@
 
 ## Required folders
 
-Always keep these folders at the workspace root:
+Always create one top-level folder named after the user input system name:
 
-- `outputs/code/`
-- `outputs/photos/`
-- `outputs/docx/`
-- `outputs/Template/`
-
-Also create one runnable frontend folder directly under `outputs/`:
-
-- `outputs/<system-folder>-frontend/`
+- `<system-folder>/`
+- `<system-folder>/code/`
+- `<system-folder>/demo/`
+- `<system-folder>/photos/`
+- `<system-folder>/docs/`
+- `<system-folder>/docs/Template/`
 
 ## Deliverable mapping
 
@@ -19,7 +17,7 @@ Also create one runnable frontend folder directly under `outputs/`:
 
 Write the non-validated full-stack source tree to:
 
-- `outputs/code/<system-folder>/`
+- `<system-folder>/code/`
 
 Recommended internal layout:
 
@@ -34,7 +32,7 @@ Treat this pack as a believable engineering handoff, not as a verified release.
 
 Write the runnable demo to:
 
-- `outputs/<system-folder>-frontend/`
+- `<system-folder>/demo/`
 
 Keep this deliverable independent from the full-stack code pack so it can be launched for screenshots without backend dependencies.
 
@@ -42,7 +40,7 @@ Keep this deliverable independent from the full-stack code pack so it can be lau
 
 Write screenshots to:
 
-- `outputs/photos/`
+- `<system-folder>/photos/`
 
 Prefer numbered filenames in business-flow order:
 
@@ -58,14 +56,14 @@ Use only the screens relevant to the system. Do not fabricate pages the demo doe
 
 Write final `.docx` files to:
 
-- `outputs/docx/<system-name>-开发协议.docx`
-- `outputs/docx/<system-name>-系统说明书.docx`
+- `<system-folder>/docs/<system-name>-开发协议.docx`
+- `<system-folder>/docs/<system-name>-系统说明书.docx`
 
 If the user prefers English filenames, keep the same folder and switch only the visible names.
 
 ### 5. Template working area
 
-Use `outputs/Template/` for:
+Use `<system-folder>/docs/Template/` for:
 
 - copied user templates
 - fallback seed templates
@@ -73,5 +71,4 @@ Use `outputs/Template/` for:
 - screenshot-driven outlines
 - draft markdown or note files used to generate the final `.docx`
 
-Do not store the final `.docx` files in `outputs/Template/`.
-
+Keep the final `.docx` files in `<system-folder>/docs/`, not in `<system-folder>/docs/Template/`.

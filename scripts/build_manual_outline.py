@@ -11,11 +11,21 @@ import re
 from pathlib import Path
 
 
-def load_manifest(root: Path) -> dict:
-    manifest_path = root / "outputs" / "Template" / "delivery-manifest.json"
-    if not manifest_path.exists():
-        return {}
-    return json.loads(manifest_path.read_text(encoding="utf-8"))
+def load_manifest(root: Path, system_name: str) -> dict:
+    if system_name.strip():
+        direct_manifest = root / safe_path_name(system_name) / "docs" / "Template" / "delivery-manifest.json"
+        if direct_manifest.exists():
+            return json.loads(direct_manifest.read_text(encoding="utf-8"))
+
+    direct_matches = list(root.glob("*/docs/Template/delivery-manifest.json"))
+    if len(direct_matches) == 1:
+        return json.loads(direct_matches[0].read_text(encoding="utf-8"))
+
+    legacy_manifest = root / "outputs" / "Template" / "delivery-manifest.json"
+    if legacy_manifest.exists():
+        return json.loads(legacy_manifest.read_text(encoding="utf-8"))
+
+    return {}
 
 
 def label_from_filename(path: Path) -> str:
@@ -37,19 +47,22 @@ def display_system_name(system_name: str) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Create a markdown outline for the DOCX manual based on screenshots in outputs/photos.",
+        description="Create a markdown outline for the DOCX manual based on screenshots in <system>/photos.",
     )
     parser.add_argument("--root", default=".", help="Workspace root")
     parser.add_argument("--system-name", default="", help="Display name of the system")
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
-    manifest = load_manifest(root)
-    system_name = args.system_name.strip() or manifest.get("system_name") or "业务系统"
+    requested_system_name = args.system_name.strip()
+    manifest = load_manifest(root, requested_system_name)
+    system_name = requested_system_name or manifest.get("system_name") or "业务系统"
     title_name = display_system_name(system_name)
 
-    photos_dir = root / "outputs" / "photos"
-    template_dir = root / "outputs" / "Template"
+    safe_name = manifest.get("system_folder") or safe_path_name(system_name)
+    system_dir = root / safe_name
+    photos_dir = system_dir / "photos"
+    template_dir = system_dir / "docs" / "Template"
     template_dir.mkdir(parents=True, exist_ok=True)
 
     screenshots = sorted(
@@ -113,7 +126,6 @@ def main() -> int:
         ]
     )
 
-    safe_name = manifest.get("system_folder") or safe_path_name(system_name)
     output_path = template_dir / f"{safe_name}-manual-outline.md"
     output_path.write_text("\n".join(sections), encoding="utf-8")
 

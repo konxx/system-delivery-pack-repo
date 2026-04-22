@@ -1,6 +1,6 @@
 ---
 name: system-delivery-pack
-description: Generate complete system delivery packs from prompts such as "生成仓储管理系统", "生成 CRM 系统", or "build an ERP system". Use when Codex needs to (1) plan 8-10 first-level system modules from the user's brief, (2) write non-validated full-stack source code with React, TypeScript, Python, and PostgreSQL under outputs/code based on those modules, (3) build a runnable frontend demo under outputs/ by first choosing exactly one bundled design prompt from ui_prompt/ (30 styles) and mapping the same modules into the UI, (4) capture Playwright screenshots under outputs/photos, and (5) create the agreement and manual .docx files while keeping template files in outputs/Template.
+description: Generate complete system delivery packs from prompts such as "生成仓储管理系统", "生成 CRM 系统", or "build an ERP system". Use when Codex needs to (1) plan 8-10 first-level system modules from the user's brief, (2) write non-validated full-stack source code with React, TypeScript, Python, and PostgreSQL under <system-name>/code based on those modules, (3) build a runnable frontend demo under <system-name>/demo by first choosing exactly one bundled design prompt from ui_prompt/ (30 styles) and mapping the same modules into the UI, (4) capture Playwright screenshots under <system-name>/photos, and (5) create the agreement and manual .docx files under <system-name>/docs while keeping working templates and outlines inside <system-name>/docs/Template.
 ---
 
 # System Delivery Pack
@@ -31,11 +31,11 @@ Generate a fixed set of project deliverables for a named system. Favor completen
 
 Write the deliverables to these locations:
 
-- `outputs/code/<system-folder>/`: full-stack source tree. This code does not need to be proven runnable.
-- `outputs/<system-folder>-frontend/`: runnable pure-frontend demo app.
-- `outputs/photos/`: Playwright screenshots of the main screens and flows.
-- `outputs/docx/`: final agreement and manual `.docx` files.
-- `outputs/Template/`: copied user templates, fallback seed templates, outlines, manifests, and other working files.
+- `<system-folder>/code/`: full-stack source tree. This code does not need to be proven runnable.
+- `<system-folder>/demo/`: runnable pure-frontend demo app.
+- `<system-folder>/photos/`: Playwright screenshots of the main screens and flows.
+- `<system-folder>/docs/`: final agreement and manual `.docx` files.
+- `<system-folder>/docs/Template/`: copied user templates, fallback seed templates, outlines, manifests, and other working files.
 
 Do not move these deliverables to other top-level folders unless the user explicitly asks.
 
@@ -49,17 +49,17 @@ Do not move these deliverables to other top-level folders unless the user explic
 - Plan 8-10 first-level modules before generating code, UI, screenshots, or documents.
 - Do not plan fewer than 8 or more than 10 first-level modules unless the user explicitly asks for a different count.
 - Make the module plan drive the frontend navigation, backend routers, service boundaries, database tables, screenshot targets, and document sections.
-- Save a short working module list in `outputs/Template/` when helpful for traceability.
+- Save a short working module list in `<system-folder>/docs/Template/` when helpful for traceability.
 
 ### 2. Prepare the output tree
 
 - Run `scripts/prepare_output_tree.py` first so the folder contract is created consistently.
-- Let the script copy fallback template seeds from `assets/` into `outputs/Template/`.
-- If the user supplied a template file, copy that template into `outputs/Template/` before editing it. Do not modify the original in place.
+- Let the script copy fallback template seeds from `assets/` into `<system-folder>/docs/Template/`.
+- If the user supplied a template file, copy that template into `<system-folder>/docs/Template/` before editing it. Do not modify the original in place.
 
 ### 3. Create the full-stack code pack
 
-- Place the full-stack deliverable under `outputs/code/<system-folder>/`.
+- Place the full-stack deliverable under `<system-folder>/code/`.
 - Build the code structure from the planned 8-10 modules rather than from generic placeholder sections.
 - Use a realistic structure with frontend, backend, API contracts, SQL or schema files, and setup notes.
 - Do not spend time proving this code runs unless the user explicitly asks for that extra validation.
@@ -68,7 +68,7 @@ Do not move these deliverables to other top-level folders unless the user explic
 
 ### 4. Create the runnable frontend demo
 
-- Place the runnable demo under `outputs/<system-folder>-frontend/`.
+- Place the runnable demo under `<system-folder>/demo/`.
 - Before writing UI code, inspect `ui_prompt/manifest.json` and choose exactly one style prompt from the 30 bundled options.
 - After choosing the style, read only the selected `ui_prompt/<slug>/prompt.xml` and use it as the primary visual direction for the pure frontend deliverable.
 - Do not mix multiple ui prompts unless the user explicitly asks for a hybrid style.
@@ -83,24 +83,24 @@ Do not move these deliverables to other top-level folders unless the user explic
 - Launch the runnable frontend deliverable and use Playwright to capture the major screens.
 - Capture only screens that actually exist in the demo and prioritize the highest-value pages from the module plan.
 - Prefer a stable naming pattern such as `01-login.png`, `02-dashboard.png`, `03-list.png`, `04-detail.png`, `05-form.png`.
-- Save all screenshots to `outputs/photos/`.
+- Save all screenshots to `<system-folder>/photos/`.
 - If runtime setup requires dependency installation or browser installation, request permission when needed and continue once approved.
 
 ### 6. Create the development agreement
 
-- Put the final agreement `.docx` in `outputs/docx/`.
-- Work from the template copy in `outputs/Template/`.
+- Put the final agreement `.docx` in `<system-folder>/docs/`.
+- Work from the template copy in `<system-folder>/docs/Template/`.
 - Change only two text locations tied to the system name unless the user explicitly points to a different pair of placeholders.
 - Preserve the rest of the legal wording and layout.
-- If no template was provided, start from `assets/agreement-template.md`, copy it into `outputs/Template/`, and convert the filled result into `.docx`.
+- If no template was provided, start from `assets/agreement-template.md`, copy it into `<system-folder>/docs/Template/`, and convert the filled result into `.docx`.
 
 ### 7. Create the system manual
 
-- Put the final manual `.docx` in `outputs/docx/`.
-- Base it on the actual screenshots in `outputs/photos/` plus concise explanatory text.
+- Put the final manual `.docx` in `<system-folder>/docs/`.
+- Base it on the actual screenshots in `<system-folder>/photos/` plus concise explanatory text.
 - Run `scripts/build_manual_outline.py --root <workspace> --system-name "<system name>"` after screenshots are ready to scaffold the manual outline.
 - Explain what each screen does, who uses it, what the key actions are, and which planned module it belongs to.
-- If no user-provided manual template exists, start from `assets/manual-template.md`, copy it into `outputs/Template/`, and convert the filled result into `.docx`.
+- If no user-provided manual template exists, start from `assets/manual-template.md`, copy it into `<system-folder>/docs/Template/`, and convert the filled result into `.docx`.
 
 ## Module planning rule
 
@@ -141,7 +141,8 @@ Treat the bundled `ui_prompt/` directory as mandatory input for any pure-fronten
 - Make the runnable frontend believable enough for screenshots and demo review.
 - Keep filenames stable and descriptive.
 - Keep the full-stack code and the runnable frontend as separate deliverables.
-- Leave the template copies and outline files in `outputs/Template/` for traceability.
+- Keep every deliverable inside the user-named system folder.
+- Leave the template copies and outline files in `<system-folder>/docs/Template/` for traceability.
 
 ## Resources
 
