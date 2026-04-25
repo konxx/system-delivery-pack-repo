@@ -70,6 +70,7 @@ Do not move these deliverables to other top-level folders unless the user explic
 
 - Place the runnable demo under `<system-folder>/demo/`.
 - Before writing UI code, inspect `ui_prompt/manifest.json` and choose exactly one style prompt from the 30 bundled options.
+- If the user does not explicitly name a style, choose one prompt randomly from the 30 bundled options.
 - After choosing the style, read only the selected `ui_prompt/<slug>/prompt.xml` and use it as the primary visual direction for the pure frontend deliverable.
 - Do not mix multiple ui prompts unless the user explicitly asks for a hybrid style.
 - Map the planned 8-10 modules into the navigation, page structure, cards, tables, forms, and charts of the runnable frontend demo.
@@ -128,10 +129,11 @@ If the provided template already marks two named placeholders, use those placeho
 Treat the bundled `ui_prompt/` directory as mandatory input for any pure-frontend design task:
 
 - Select one and only one prompt for the runnable frontend demo.
-- Start from `ui_prompt/manifest.json` to shortlist styles, then read the chosen `ui_prompt/<slug>/prompt.xml`.
+- Start from `ui_prompt/manifest.json`, then select one style prompt.
 - If the user names a style, use that style directly when it exists in `ui_prompt/`.
-- If the brief is education- or campus-related, prefer `academia` unless the user asks for a different mood.
-- If the brief is a generic management backend, prefer `enterprise`, `professional`, or `swiss-minimalist`.
+- If the user does not name a style, randomly choose one prompt from the 30 bundled options.
+- Do not infer a default style from domain type such as education, campus, ERP, CRM, or generic admin backend.
+- After selecting the slug, read only the chosen `ui_prompt/<slug>/prompt.xml`.
 - Preserve the chosen prompt's typography, color direction, composition, and motion language throughout the frontend demo.
 - Mention the selected ui prompt slug in the final assumptions or summary.
 
