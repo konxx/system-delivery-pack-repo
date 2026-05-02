@@ -30,6 +30,8 @@
 - Include navigation and the main business loop needed for screenshots.
 - Keep the visuals intentional enough for a handoff screenshot pack.
 - Ensure the demo passes `scripts/validate_frontend_demo.py` before treating it as ready for launch.
+- Keep mock records consistent between primary pages and their secondary pages such as detail, edit, and drill-down views.
+- Prefer a shared source of mock truth per module so the same entity appears coherently in list and detail states.
 
 ## Screenshot rules
 
@@ -38,6 +40,8 @@
 - Wait for the page to settle before capturing.
 - Favor full-page screenshots only when it helps readability; otherwise use viewport captures with consistent dimensions.
 - Capture the highest-value pages first: login or landing, dashboard, the most important module pages, record detail, create or edit flow, analytics or settings if present.
+- If a secondary page is not backed by a real record from the related primary page, skip that screenshot instead of capturing a disconnected view.
+- Prefer a smaller but consistent screenshot set over a larger set with fake or broken detail pages.
 
 ## Agreement rules
 

@@ -77,6 +77,8 @@ Do not move these deliverables to other top-level folders unless the user explic
 - Make this deliverable runnable with a normal React + TypeScript frontend toolchain. Prefer a Vite layout.
 - Use mocked data, local state, or static JSON when backend integration would slow delivery.
 - Include the main screens implied by the 8-10 module plan: dashboard plus the module-specific list, detail, form, workflow, analytics, settings, or other screens as needed.
+- When the demo includes secondary pages such as detail, edit, or drill-down views, keep their mock data linked to the primary list data through the same record IDs or keys.
+- Prefer a single shared mock dataset per module so list pages, detail pages, and forms refer to the same entities instead of unrelated placeholders.
 - Keep the UI visually intentional. Do not default to an unstyled placeholder interface.
 - Run `scripts/validate_frontend_demo.py --root <workspace> --system-name "<system name>"` before any launch or screenshot step.
 - If the static validation fails, fix the frontend structure first. Do not continue to Playwright screenshots with a broken or incomplete demo.
@@ -86,6 +88,8 @@ Do not move these deliverables to other top-level folders unless the user explic
 - Do not launch Playwright until `scripts/validate_frontend_demo.py` passes for the demo folder.
 - Launch the runnable frontend deliverable and use Playwright to capture the major screens.
 - Capture only screens that actually exist in the demo and prioritize the highest-value pages from the module plan.
+- If a secondary page such as a product detail page, student detail page, or order drill-down does not have data that matches an actual record from the primary page, do not screenshot that secondary page.
+- Prefer skipping an inconsistent secondary page over capturing a broken or disconnected detail view.
 - Prefer a stable naming pattern such as `01-login.png`, `02-dashboard.png`, `03-list.png`, `04-detail.png`, `05-form.png`.
 - Save all screenshots to `<system-folder>/photos/`.
 - If runtime setup requires dependency installation or browser installation, request permission when needed and continue once approved.
@@ -144,6 +148,7 @@ Treat the bundled `ui_prompt/` directory as mandatory input for any pure-fronten
 
 - Optimize for package completeness, not production readiness.
 - Make the runnable frontend believable enough for screenshots and demo review.
+- Keep mock data coherent across list, detail, edit, and drill-down pages.
 - Keep filenames stable and descriptive.
 - Keep the full-stack code and the runnable frontend as separate deliverables.
 - Keep every deliverable inside the user-named system folder.
