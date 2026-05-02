@@ -78,9 +78,12 @@ Do not move these deliverables to other top-level folders unless the user explic
 - Use mocked data, local state, or static JSON when backend integration would slow delivery.
 - Include the main screens implied by the 8-10 module plan: dashboard plus the module-specific list, detail, form, workflow, analytics, settings, or other screens as needed.
 - Keep the UI visually intentional. Do not default to an unstyled placeholder interface.
+- Run `scripts/validate_frontend_demo.py --root <workspace> --system-name "<system name>"` before any launch or screenshot step.
+- If the static validation fails, fix the frontend structure first. Do not continue to Playwright screenshots with a broken or incomplete demo.
 
 ### 5. Capture Playwright screenshots
 
+- Do not launch Playwright until `scripts/validate_frontend_demo.py` passes for the demo folder.
 - Launch the runnable frontend deliverable and use Playwright to capture the major screens.
 - Capture only screens that actually exist in the demo and prioritize the highest-value pages from the module plan.
 - Prefer a stable naming pattern such as `01-login.png`, `02-dashboard.png`, `03-list.png`, `04-detail.png`, `05-form.png`.
@@ -153,6 +156,7 @@ Treat the bundled `ui_prompt/` directory as mandatory input for any pure-fronten
 - Read [references/ui-prompt-selection.md](references/ui-prompt-selection.md) for the mandatory pure-frontend style-selection workflow.
 - Read [references/delivery-workflow.md](references/delivery-workflow.md) for the end-to-end checklist and document rules.
 - Run `scripts/prepare_output_tree.py` to create the folder tree and seed templates.
+- Run `scripts/validate_frontend_demo.py` to statically verify the demo before launching it or taking screenshots.
 - Run `scripts/build_manual_outline.py` to generate a screenshot-driven manual outline before writing the final `.docx`.
 - Use `assets/agreement-template.md` and `assets/manual-template.md` as fallback seeds when the user does not provide templates.
 - Use `ui_prompt/manifest.json` to inspect the 30 available frontend design prompts and open only the chosen `ui_prompt/<slug>/prompt.xml`.

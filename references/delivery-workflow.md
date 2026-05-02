@@ -7,11 +7,12 @@
 3. Create the output tree with `scripts/prepare_output_tree.py`.
 4. Build the full-stack code pack under `<system-folder>/code/` from the module map.
 5. Build the runnable frontend demo under `<system-folder>/demo/` from the same module map.
-6. Launch the demo and capture Playwright screenshots into `<system-folder>/photos/`.
-7. Copy the agreement template into `<system-folder>/docs/Template/` and edit only two system-name text slots.
-8. Generate the manual outline with `scripts/build_manual_outline.py`.
-9. Turn the agreement and manual into final `.docx` files in `<system-folder>/docs/`.
-10. Report assumptions, selected ui prompt, final module count, saved paths, and any missing validations.
+6. Run `scripts/validate_frontend_demo.py` and fix the demo if the static validation fails.
+7. Launch the demo and capture Playwright screenshots into `<system-folder>/photos/`.
+8. Copy the agreement template into `<system-folder>/docs/Template/` and edit only two system-name text slots.
+9. Generate the manual outline with `scripts/build_manual_outline.py`.
+10. Turn the agreement and manual into final `.docx` files in `<system-folder>/docs/`.
+11. Report assumptions, selected ui prompt, final module count, saved paths, and any missing validations.
 
 ## Full-stack code pack rules
 
@@ -28,9 +29,11 @@
 - Prefer mocked data over incomplete backend coupling.
 - Include navigation and the main business loop needed for screenshots.
 - Keep the visuals intentional enough for a handoff screenshot pack.
+- Ensure the demo passes `scripts/validate_frontend_demo.py` before treating it as ready for launch.
 
 ## Screenshot rules
 
+- Never start Playwright screenshots if the static frontend validation fails.
 - Use Playwright, not manual screenshots.
 - Wait for the page to settle before capturing.
 - Favor full-page screenshots only when it helps readability; otherwise use viewport captures with consistent dimensions.
