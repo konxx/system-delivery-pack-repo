@@ -5,23 +5,31 @@
 1. Extract the system name and user roles from the brief.
 2. Plan 8-10 first-level modules and keep that module map stable.
 3. Create the output tree with `scripts/prepare_output_tree.py`.
-4. Build the full-stack code pack under `<system-folder>/code/` from the module map.
-5. Choose one layout archetype from the 10 fixed options, then build the runnable frontend demo under `<system-folder>/demo/` from the same module map.
-6. Run `scripts/validate_frontend_demo.py` and fix the demo if the static validation fails.
-7. Run `scripts/validate_frontend_build.py`, then build the demo.
-8. Start a preview or static server from the built output and run `scripts/validate_frontend_routes.py`.
-9. Capture Playwright screenshots from the validated preview into `<system-folder>/photos/`.
-10. Copy the agreement template into `<system-folder>/docs/Template/` and edit only two system-name text slots.
-11. Read `references/manual-docx-spec.md` and generate the manual outline with `scripts/build_manual_outline.py`.
-12. Have the current agent fill `manual-content.json` directly with natural Chinese content for 用途、功能 and every screenshot description.
-13. Run `scripts/build_manual_docx.py` to convert the manual draft into the final formatted `.docx` in `<system-folder>/docs/`.
-14. Report assumptions, selected ui prompt, selected layout archetype, final module count, saved paths, and any missing validations.
+4. Save the module list to `<system-folder>/docs/Template/module-plan.md`.
+5. Build the full-stack code pack under `<system-folder>/code/` from the module map.
+6. Run `scripts/validate_fullstack_code.py` and fix the code pack if validation fails.
+7. Choose one layout archetype from the 10 fixed options, then build the runnable frontend demo under `<system-folder>/demo/` from the same module map.
+8. Run `scripts/validate_frontend_demo.py` and fix the demo if the static validation fails.
+9. Run `scripts/validate_frontend_build.py`, then build the demo.
+10. Start a preview or static server from the built output and run `scripts/validate_frontend_routes.py`.
+11. Capture Playwright screenshots from the validated preview into `<system-folder>/photos/`.
+12. Copy the agreement template into `<system-folder>/docs/Template/` and edit only two system-name text slots.
+13. Read `references/manual-docx-spec.md` and generate the manual outline with `scripts/build_manual_outline.py`.
+14. Have the current agent fill `manual-content.json` directly with natural Chinese content for 用途、功能 and every screenshot description.
+15. Run `scripts/build_manual_docx.py` to convert the manual draft into the final formatted `.docx` in `<system-folder>/docs/`.
+16. Run `scripts/build_code_docx.py` to invoke the installed `codeclean` CLI and generate `<system-name>代码源程序V1.0.docx` in `<system-folder>/docs/`.
+17. Report assumptions, selected ui prompt, selected layout archetype, final module count, saved paths, and any missing validations.
 
 ## Full-stack code pack rules
 
 - Let the planned 8-10 modules shape the routers, services, entities, and frontend pages inside the code pack.
 - Prefer coherent structure over execution proof.
 - Include representative database tables, API endpoints, service layers, and screens.
+- Do not skip `code/frontend`; it must contain a React + TypeScript source tree with module-specific pages or components.
+- Do not generate a small placeholder code pack. The pack must include frontend, backend, and database files with enough breadth for a handoff.
+- `code/frontend/src/modules`, `code/backend/app/routers`, and SQL `CREATE TABLE` statements must cover every planned first-level module.
+- Minimum validation thresholds are enforced by `scripts/validate_fullstack_code.py`: at least 45 counted source files, 1300 nonblank source lines, 18 frontend source files, 18 backend Python files, 2 SQL files, and module coverage across frontend/backend/database.
+- Treat a failed full-stack code validation as blocking. Do not create the demo, screenshots, documents, or code-source `.docx` until it passes.
 - Leave integration seams as TODO comments only when necessary.
 - Do not spend the majority of the task on dependency fixes, environment debugging, or tests.
 
@@ -70,3 +78,4 @@
 - The current agent must fill the final copy before DOCX generation; do not rely on canned fallback paragraphs for 用途、功能 or screenshot descriptions.
 - Explain major workflows in business order.
 - Mention demo assumptions such as mock data, omitted integrations, or simplified permissions.
+- After the manual `.docx` is complete, run the code-cleaning CLI to produce the cleaned code-source `.docx` and place it in `<system-folder>/docs/`.

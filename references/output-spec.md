@@ -28,6 +28,14 @@ Recommended internal layout:
 
 Treat this pack as a believable engineering handoff, not as a verified release.
 
+Hard minimums:
+
+- Include `frontend/`, `backend/`, and `database/`; none may be omitted.
+- `frontend/` must be a React + TypeScript source tree with `package.json`, `src/`, an entry file, and module-specific pages/components.
+- `backend/` must include Python/FastAPI-style app code with module routers and representative service/model logic.
+- `database/` must include schema and seed/sample SQL.
+- The pack must pass `scripts/validate_fullstack_code.py` before any demo, screenshot, document, or code-source DOCX step.
+
 ### 2. Runnable frontend demo
 
 Write the runnable demo to:
@@ -58,6 +66,7 @@ Write final `.docx` files to:
 
 - `<system-folder>/docs/<system-name>-开发协议.docx`
 - `<system-folder>/docs/<system-name>-系统说明书.docx`
+- `<system-folder>/docs/<system-name>代码源程序V1.0.docx`
 
 If the user prefers English filenames, keep the same folder and switch only the visible names.
 

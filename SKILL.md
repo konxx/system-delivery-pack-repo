@@ -1,6 +1,6 @@
 ---
 name: system-delivery-pack
-description: Generate complete system delivery packs from prompts such as "生成仓储管理系统", "生成 CRM 系统", or "build an ERP system". Use when Codex needs to (1) plan 8-10 first-level system modules from the user's brief, (2) write non-validated full-stack source code with React, TypeScript, Python, and PostgreSQL under <system-name>/code based on those modules, (3) build a runnable frontend demo under <system-name>/demo by first choosing exactly one bundled design prompt from ui_prompt/ (30 styles) and mapping the same modules into the UI, (4) capture Playwright screenshots under <system-name>/photos, and (5) create the agreement and manual .docx files under <system-name>/docs while keeping working templates and outlines inside <system-name>/docs/Template.
+description: Generate complete system delivery packs from prompts such as "生成仓储管理系统", "生成 CRM 系统", or "build an ERP system". Use when Codex needs to (1) plan 8-10 first-level system modules from the user's brief, (2) write non-validated full-stack source code with React, TypeScript, Python, and PostgreSQL under <system-name>/code based on those modules, (3) build a runnable frontend demo under <system-name>/demo by first choosing exactly one bundled design prompt from ui_prompt/ (30 styles) and mapping the same modules into the UI, (4) capture Playwright screenshots under <system-name>/photos, (5) create the agreement and manual .docx files under <system-name>/docs while keeping working templates and outlines inside <system-name>/docs/Template, and (6) generate a cleaned code-source .docx from <system-name>/code with the installed `codeclean` CLI after the manual is delivered.
 ---
 
 # System Delivery Pack
@@ -36,7 +36,7 @@ Write the deliverables to these locations:
 - `<system-folder>/code/`: full-stack source tree. This code does not need to be proven runnable.
 - `<system-folder>/demo/`: runnable pure-frontend demo app.
 - `<system-folder>/photos/`: Playwright screenshots of the main screens and flows.
-- `<system-folder>/docs/`: final agreement and manual `.docx` files.
+- `<system-folder>/docs/`: final agreement, manual, and code-source `.docx` files.
 - `<system-folder>/docs/Template/`: copied user templates, fallback seed templates, outlines, manifests, and other working files.
 
 Do not move these deliverables to other top-level folders unless the user explicitly asks.
@@ -51,7 +51,7 @@ Do not move these deliverables to other top-level folders unless the user explic
 - Plan 8-10 first-level modules before generating code, UI, screenshots, or documents.
 - Do not plan fewer than 8 or more than 10 first-level modules unless the user explicitly asks for a different count.
 - Make the module plan drive the frontend navigation, backend routers, service boundaries, database tables, screenshot targets, and document sections.
-- Save a short working module list in `<system-folder>/docs/Template/` when helpful for traceability.
+- Save the module list to `<system-folder>/docs/Template/module-plan.md`; downstream validation treats this file as required.
 
 ### 2. Prepare the output tree
 
@@ -64,6 +64,13 @@ Do not move these deliverables to other top-level folders unless the user explic
 - Place the full-stack deliverable under `<system-folder>/code/`.
 - Build the code structure from the planned 8-10 modules rather than from generic placeholder sections.
 - Use a realistic structure with frontend, backend, API contracts, SQL or schema files, and setup notes.
+- Do not skip the full-stack frontend. `<system-folder>/code/frontend/` must contain a React + TypeScript source tree with `package.json`, `src/`, an entry file, and module-specific pages/components.
+- Do not create a token placeholder code pack. `<system-folder>/code/backend/` must contain FastAPI-style app code with module routers, services or models, and representative API behavior.
+- `<system-folder>/code/database/` must contain SQL schema and seed/sample data files.
+- The full-stack code pack must cover every planned first-level module in frontend module folders, backend routers, and database tables.
+- Minimum code-pack breadth before validation: at least 45 counted source files, 1300 nonblank source lines, 18 frontend source files, 18 backend Python files, 2 SQL files, and at least one frontend module directory, backend router, and `CREATE TABLE` statement for each planned module.
+- Run `scripts/validate_fullstack_code.py --root <workspace> --system-name "<system name>"` immediately after writing `<system-folder>/code/`.
+- If full-stack validation fails, fix the code pack before creating the demo, screenshots, agreement, manual, or code-source `.docx`.
 - Do not spend time proving this code runs unless the user explicitly asks for that extra validation.
 - Prefer breadth and coherence: routes, components, models, services, database schema, and representative pages should all exist for the planned modules.
 - Use clear TODO comments only where integration details are intentionally omitted.
@@ -135,6 +142,12 @@ Do not move these deliverables to other top-level folders unless the user explic
 - Keep the cover page, revision table, runtime tables, and figure captions consistent with the manual docx spec.
 - If no user-provided manual template exists, start from `assets/manual-template.md`, copy it into `<system-folder>/docs/Template/`, and convert the filled result into `.docx`.
 
+### 8. Create the code source document
+
+- After the system manual `.docx` is finished, run `scripts/build_code_docx.py --root <workspace> --system-name "<system name>"` to invoke the installed `codeclean` CLI on `<system-folder>/code/`.
+- Save the final cleaned code-source document in `<system-folder>/docs/` as `<system-name>代码源程序V1.0.docx`.
+- Keep the output in `<system-folder>/docs/`, not in `<system-folder>/docs/Template/`.
+
 ## Module planning rule
 
 Treat module planning as a mandatory upstream step:
@@ -184,6 +197,8 @@ Treat layout composition as a separate design decision from color and typography
 ## Quality bar
 
 - Optimize for package completeness, not production readiness.
+- Treat missing or thin full-stack code as a blocking failure, not a warning.
+- Do not proceed past the code-pack step unless `scripts/validate_fullstack_code.py` passes.
 - Make the runnable frontend believable enough for screenshots and demo review.
 - Prefer screenshots from a built preview server rather than an unstable dev server.
 - Keep mock data coherent across list, detail, edit, and drill-down pages.
@@ -201,11 +216,14 @@ Treat layout composition as a separate design decision from color and typography
 - Read [references/layout-archetypes.md](references/layout-archetypes.md) for layout variety and shell selection guidance.
 - Read [references/manual-docx-spec.md](references/manual-docx-spec.md) for the required Chinese product-manual structure.
 - Read [references/delivery-workflow.md](references/delivery-workflow.md) for the end-to-end checklist and document rules.
+- Read `D:\Projects\code_clean\CLI.md` before generating the cleaned code-source `.docx`.
 - Run `scripts/prepare_output_tree.py` to create the folder tree and seed templates.
+- Run `scripts/validate_fullstack_code.py` after writing the full-stack code pack and before creating downstream deliverables.
 - Run `scripts/validate_frontend_demo.py` to statically verify the demo before launching it or taking screenshots.
 - Run `scripts/validate_frontend_build.py` before building the frontend demo for screenshots.
 - Run `scripts/validate_frontend_routes.py` against the preview server before Playwright capture.
 - Run `scripts/build_manual_outline.py` to generate a screenshot-driven manual outline before writing the final `.docx`.
 - Run `scripts/build_manual_docx.py` to generate the final formatted manual `.docx`.
+- Run `scripts/build_code_docx.py` after the manual to generate the cleaned code-source `.docx`.
 - Use `assets/agreement-template.md` and `assets/manual-template.md` as fallback seeds when the user does not provide templates.
 - Use `ui_prompt/manifest.json` to inspect the 30 available frontend design prompts and open only the chosen `ui_prompt/<slug>/prompt.xml`.

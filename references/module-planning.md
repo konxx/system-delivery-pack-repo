@@ -11,12 +11,13 @@ Do not plan fewer than 8 or more than 10 first-level modules unless the user exp
 1. Extract the system name, roles, and domain clues from the user's brief.
 2. Draft 8-10 first-level modules.
 3. Balance the list so it includes both domain-specific modules and supporting modules.
-4. Reuse the module list as the structural backbone for:
+4. Save the final module list to `<system-folder>/docs/Template/module-plan.md` as a numbered list.
+5. Reuse the module list as the structural backbone for:
    - full-stack code folders and APIs
    - pure frontend navigation and pages
    - screenshot targets
    - agreement/manual wording when relevant
-5. Mention the final module count and selected module names in the final summary.
+6. Mention the final module count and selected module names in the final summary.
 
 ## Module composition guidance
 
@@ -59,6 +60,7 @@ For a larger brief, extend to 9 or 10 modules by adding items such as 家校沟�
 ## Guardrails
 
 - Keep module names stable after planning them.
+- Do not skip `docs/Template/module-plan.md`; code validation uses it to enforce module coverage.
 - Do not let the frontend use one module map while the backend uses another.
 - Do not collapse everything into generic pages like list/detail/settings if the module plan is richer than that.
 - If the user names required modules, preserve them and fill the remaining slots up to 8-10 with reasonable supporting modules.
