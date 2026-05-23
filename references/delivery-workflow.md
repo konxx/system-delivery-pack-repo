@@ -6,13 +6,16 @@
 2. Plan 8-10 first-level modules and keep that module map stable.
 3. Create the output tree with `scripts/prepare_output_tree.py`.
 4. Build the full-stack code pack under `<system-folder>/code/` from the module map.
-5. Build the runnable frontend demo under `<system-folder>/demo/` from the same module map.
+5. Choose one layout archetype from the 10 fixed options, then build the runnable frontend demo under `<system-folder>/demo/` from the same module map.
 6. Run `scripts/validate_frontend_demo.py` and fix the demo if the static validation fails.
-7. Launch the demo and capture Playwright screenshots into `<system-folder>/photos/`.
-8. Copy the agreement template into `<system-folder>/docs/Template/` and edit only two system-name text slots.
-9. Generate the manual outline with `scripts/build_manual_outline.py`.
-10. Turn the agreement and manual into final `.docx` files in `<system-folder>/docs/`.
-11. Report assumptions, selected ui prompt, final module count, saved paths, and any missing validations.
+7. Run `scripts/validate_frontend_build.py`, then build the demo.
+8. Start a preview or static server from the built output and run `scripts/validate_frontend_routes.py`.
+9. Capture Playwright screenshots from the validated preview into `<system-folder>/photos/`.
+10. Copy the agreement template into `<system-folder>/docs/Template/` and edit only two system-name text slots.
+11. Read `references/manual-docx-spec.md` and generate the manual outline with `scripts/build_manual_outline.py`.
+12. Have the current agent fill `manual-content.json` directly with natural Chinese content for 用途、功能 and every screenshot description.
+13. Run `scripts/build_manual_docx.py` to convert the manual draft into the final formatted `.docx` in `<system-folder>/docs/`.
+14. Report assumptions, selected ui prompt, selected layout archetype, final module count, saved paths, and any missing validations.
 
 ## Full-stack code pack rules
 
@@ -29,13 +32,18 @@
 - Prefer mocked data over incomplete backend coupling.
 - Include navigation and the main business loop needed for screenshots.
 - Keep the visuals intentional enough for a handoff screenshot pack.
+- Choose a layout archetype from the 10 fixed options before implementation and let it materially change the shell.
+- Do not default to the same left-sidebar workspace across unrelated prompts and systems.
 - Ensure the demo passes `scripts/validate_frontend_demo.py` before treating it as ready for launch.
+- Ensure the demo passes `scripts/validate_frontend_build.py` before trying to use a build-first screenshot workflow.
 - Keep mock records consistent between primary pages and their secondary pages such as detail, edit, and drill-down views.
 - Prefer a shared source of mock truth per module so the same entity appears coherently in list and detail states.
 
 ## Screenshot rules
 
 - Never start Playwright screenshots if the static frontend validation fails.
+- Prefer screenshots from a built preview or static server instead of a dev server.
+- Run route smoke checks before opening Playwright on the target pages.
 - Use Playwright, not manual screenshots.
 - Wait for the page to settle before capturing.
 - Favor full-page screenshots only when it helps readability; otherwise use viewport captures with consistent dimensions.
@@ -53,6 +61,12 @@
 ## Manual rules
 
 - Base the manual on the actual screenshots, not on imagined pages.
+- Follow `references/manual-docx-spec.md` as the default page structure for Chinese manuals.
 - Describe each page in terms of user goal, main information, primary actions, and the module it belongs to.
+- Use one screenshot subsection per page in section `五、软件使用`.
+- Keep figure captions below images and center them.
+- Use real generated languages with version numbers when filling the development-language fields.
+- Prefer `scripts/build_manual_docx.py` as the default final manual generator.
+- The current agent must fill the final copy before DOCX generation; do not rely on canned fallback paragraphs for 用途、功能 or screenshot descriptions.
 - Explain major workflows in business order.
 - Mention demo assumptions such as mock data, omitted integrations, or simplified permissions.

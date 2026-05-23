@@ -25,7 +25,9 @@ Generate a fixed set of project deliverables for a named system. Favor completen
 3. Run `scripts/prepare_output_tree.py --root <workspace> --system-name "<system name>"`.
 4. Read [references/output-spec.md](references/output-spec.md) before writing files.
 5. Read [references/ui-prompt-selection.md](references/ui-prompt-selection.md) before creating the pure-frontend deliverable.
-6. Read [references/delivery-workflow.md](references/delivery-workflow.md) before creating screenshots or documents.
+6. Read [references/layout-archetypes.md](references/layout-archetypes.md) before deciding the frontend information architecture.
+7. Read [references/manual-docx-spec.md](references/manual-docx-spec.md) before generating the product manual `.docx`.
+8. Read [references/delivery-workflow.md](references/delivery-workflow.md) before creating screenshots or documents.
 
 ## Output contract
 
@@ -72,8 +74,13 @@ Do not move these deliverables to other top-level folders unless the user explic
 - Before writing UI code, inspect `ui_prompt/manifest.json` and choose exactly one style prompt from the 30 bundled options.
 - If the user does not explicitly name a style, choose one prompt randomly from the 30 bundled options.
 - After choosing the style, read only the selected `ui_prompt/<slug>/prompt.xml` and use it as the primary visual direction for the pure frontend deliverable.
+- Before writing page structure, choose exactly one primary layout archetype from the 10 fixed options in [references/layout-archetypes.md](references/layout-archetypes.md).
+- If the user does not explicitly name a layout archetype, randomly choose one from the 10 fixed options.
 - Do not mix multiple ui prompts unless the user explicitly asks for a hybrid style.
 - Map the planned 8-10 modules into the navigation, page structure, cards, tables, forms, and charts of the runnable frontend demo.
+- Do not default to the same `left sidebar + right content` admin shell for every system.
+- Use left-sidebar navigation only when the chosen layout archetype is explicitly `3. 左侧导航栏，右侧内容`.
+- Let the chosen layout archetype affect navigation placement, module entry points, detail-page composition, and dashboard structure instead of changing only colors.
 - Make this deliverable runnable with a normal React + TypeScript frontend toolchain. Prefer a Vite layout.
 - Use mocked data, local state, or static JSON when backend integration would slow delivery.
 - Include the main screens implied by the 8-10 module plan: dashboard plus the module-specific list, detail, form, workflow, analytics, settings, or other screens as needed.
@@ -81,12 +88,16 @@ Do not move these deliverables to other top-level folders unless the user explic
 - Prefer a single shared mock dataset per module so list pages, detail pages, and forms refer to the same entities instead of unrelated placeholders.
 - Keep the UI visually intentional. Do not default to an unstyled placeholder interface.
 - Run `scripts/validate_frontend_demo.py --root <workspace> --system-name "<system name>"` before any launch or screenshot step.
+- Run `scripts/validate_frontend_build.py --root <workspace> --system-name "<system name>"` before using any build-first screenshot workflow.
 - If the static validation fails, fix the frontend structure first. Do not continue to Playwright screenshots with a broken or incomplete demo.
 
 ### 5. Capture Playwright screenshots
 
 - Do not launch Playwright until `scripts/validate_frontend_demo.py` passes for the demo folder.
-- Launch the runnable frontend deliverable and use Playwright to capture the major screens.
+- Prefer a build-first screenshot workflow: install dependencies, run the frontend build, start a preview or static server from the built output, validate routes, then use Playwright as the final capture tool.
+- Run `scripts/validate_frontend_build.py` before building, and run `scripts/validate_frontend_routes.py` against the preview server before taking screenshots.
+- Prefer screenshotting the built preview over screenshotting the dev server whenever feasible.
+- Launch the validated preview and use Playwright to capture the major screens.
 - Capture only screens that actually exist in the demo and prioritize the highest-value pages from the module plan.
 - If a secondary page such as a product detail page, student detail page, or order drill-down does not have data that matches an actual record from the primary page, do not screenshot that secondary page.
 - Prefer skipping an inconsistent secondary page over capturing a broken or disconnected detail view.
@@ -106,8 +117,22 @@ Do not move these deliverables to other top-level folders unless the user explic
 
 - Put the final manual `.docx` in `<system-folder>/docs/`.
 - Base it on the actual screenshots in `<system-folder>/photos/` plus concise explanatory text.
-- Run `scripts/build_manual_outline.py --root <workspace> --system-name "<system name>"` after screenshots are ready to scaffold the manual outline.
+- Read [references/manual-docx-spec.md](references/manual-docx-spec.md) first and follow it as the default Chinese manual structure.
+- Use `C:\Program Files\Pandoc\pandoc.exe` as the default draft conversion path when Pandoc is needed.
+- Run `scripts/build_manual_outline.py --root <workspace> --system-name "<system name>"` after screenshots are ready to scaffold the manual draft.
+- Run `scripts/build_manual_docx.py --root <workspace> --system-name "<system name>"` to produce the final formatted manual `.docx`.
+- Before running `build_manual_docx.py`, the current agent must directly fill the blank fields in `manual-content.json`.
+- Fill natural Chinese copy for:
+  - `short_name`
+  - `purpose_text`
+  - `function_text`
+  - `development_environment_text`
+  - each `screenshot_sections[].title`
+  - each `screenshot_sections[].description_text`
+- The language must be concise, natural, and specific to the system. Do not leave templated placeholders or generic canned text.
 - Explain what each screen does, who uses it, what the key actions are, and which planned module it belongs to.
+- In section `五、软件使用`, place one screenshot subsection per page with one natural-language paragraph around 200 Chinese characters.
+- Keep the cover page, revision table, runtime tables, and figure captions consistent with the manual docx spec.
 - If no user-provided manual template exists, start from `assets/manual-template.md`, copy it into `<system-folder>/docs/Template/`, and convert the filled result into `.docx`.
 
 ## Module planning rule
@@ -144,11 +169,25 @@ Treat the bundled `ui_prompt/` directory as mandatory input for any pure-fronten
 - Preserve the chosen prompt's typography, color direction, composition, and motion language throughout the frontend demo.
 - Mention the selected ui prompt slug in the final assumptions or summary.
 
+## Layout rule
+
+Treat layout composition as a separate design decision from color and typography:
+
+- Choose exactly one primary layout archetype from the 10 fixed options before implementing the demo.
+- If the user names one of the 10 layout archetypes, use it directly.
+- If the user does not name a layout archetype, randomly choose one from the 10 fixed options.
+- Do not reuse the same page skeleton for every system just because the style prompt changed.
+- Do not default to `left sidebar + right content` unless the chosen layout archetype is exactly that option.
+- Reuse the chosen archetype consistently across dashboard, list, detail, and workflow pages.
+- Mention the selected layout archetype in the final assumptions or summary.
+
 ## Quality bar
 
 - Optimize for package completeness, not production readiness.
 - Make the runnable frontend believable enough for screenshots and demo review.
+- Prefer screenshots from a built preview server rather than an unstable dev server.
 - Keep mock data coherent across list, detail, edit, and drill-down pages.
+- Keep manual copy natural and specific. Avoid obviously templated wording.
 - Keep filenames stable and descriptive.
 - Keep the full-stack code and the runnable frontend as separate deliverables.
 - Keep every deliverable inside the user-named system folder.
@@ -159,9 +198,14 @@ Treat the bundled `ui_prompt/` directory as mandatory input for any pure-fronten
 - Read [references/output-spec.md](references/output-spec.md) for the exact folder contract and deliverable naming rules.
 - Read [references/module-planning.md](references/module-planning.md) for the mandatory 8-10 module planning workflow.
 - Read [references/ui-prompt-selection.md](references/ui-prompt-selection.md) for the mandatory pure-frontend style-selection workflow.
+- Read [references/layout-archetypes.md](references/layout-archetypes.md) for layout variety and shell selection guidance.
+- Read [references/manual-docx-spec.md](references/manual-docx-spec.md) for the required Chinese product-manual structure.
 - Read [references/delivery-workflow.md](references/delivery-workflow.md) for the end-to-end checklist and document rules.
 - Run `scripts/prepare_output_tree.py` to create the folder tree and seed templates.
 - Run `scripts/validate_frontend_demo.py` to statically verify the demo before launching it or taking screenshots.
+- Run `scripts/validate_frontend_build.py` before building the frontend demo for screenshots.
+- Run `scripts/validate_frontend_routes.py` against the preview server before Playwright capture.
 - Run `scripts/build_manual_outline.py` to generate a screenshot-driven manual outline before writing the final `.docx`.
+- Run `scripts/build_manual_docx.py` to generate the final formatted manual `.docx`.
 - Use `assets/agreement-template.md` and `assets/manual-template.md` as fallback seeds when the user does not provide templates.
 - Use `ui_prompt/manifest.json` to inspect the 30 available frontend design prompts and open only the chosen `ui_prompt/<slug>/prompt.xml`.

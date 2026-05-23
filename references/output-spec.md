@@ -70,5 +70,6 @@ Use `<system-folder>/docs/Template/` for:
 - manifest files
 - screenshot-driven outlines
 - draft markdown or note files used to generate the final `.docx`
+- manual draft files intended for Pandoc or `python-docx` based conversion
 
 Keep the final `.docx` files in `<system-folder>/docs/`, not in `<system-folder>/docs/Template/`.

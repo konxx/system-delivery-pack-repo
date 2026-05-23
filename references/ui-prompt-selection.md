@@ -23,4 +23,5 @@ When the user does not specify a style, do not map by industry or system type. P
 - Prefer one prompt with strong consistency over a mixed style.
 - Use the prompt as direction, not as a reason to ignore usability.
 - Do not apply hidden domain-based defaults when the user has not named a style.
+- Do not keep the same layout shell while only swapping colors and fonts between prompts.
 - Only read extra `prompt.xml` files if the user explicitly asks for style comparison or alternatives.
