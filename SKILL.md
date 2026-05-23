@@ -1,6 +1,6 @@
 ---
 name: system-delivery-pack
-description: Generate complete system delivery packs from prompts such as "生成仓储管理系统", "生成 CRM 系统", or "build an ERP system". Use when Codex needs to (1) plan 8-10 first-level system modules from the user's brief, (2) write non-validated full-stack source code with React, TypeScript, Python, and PostgreSQL under <system-name>/code based on those modules, (3) build a runnable frontend demo under <system-name>/demo by first choosing exactly one bundled design prompt from ui_prompt/ (30 styles) and mapping the same modules into the UI, (4) capture Playwright screenshots under <system-name>/photos, (5) create the agreement and manual .docx files under <system-name>/docs while keeping working templates and outlines inside <system-name>/docs/Template, and (6) generate a cleaned code-source .docx from <system-name>/code with the installed `codeclean` CLI after the manual is delivered.
+description: Generate complete system delivery packs from prompts such as "生成仓储管理系统", "生成 CRM 系统", or "build an ERP system". Use when Codex needs to (1) plan 8-10 first-level system modules from the user's brief, (2) write non-validated full-stack source code with React, TypeScript, Python, and PostgreSQL under <system-name>/code based on those modules, (3) build a runnable frontend demo under <system-name>/demo by first choosing exactly one bundled design prompt from ui_prompt/ (30 styles) and mapping the same modules into the UI, (4) capture Playwright screenshots under <system-name>/photos, (5) create the cooperation development agreement and manual .docx files under <system-name>/docs while keeping working templates and outlines inside <system-name>/docs/Template, and (6) generate a cleaned code-source .docx from <system-name>/code with the installed `codeclean` CLI after the manual is delivered.
 ---
 
 # System Delivery Pack
@@ -20,7 +20,7 @@ Generate a fixed set of project deliverables for a named system. Favor completen
 
 ## Quick start
 
-1. Extract the system name, the primary user roles, and whether the user supplied an agreement template.
+1. Extract the system name, the primary user roles, and the cooperation-agreement party count. If the user does not specify party count, use 3 parties.
 2. Read [references/module-planning.md](references/module-planning.md) and plan 8-10 first-level modules before writing any deliverable.
 3. Run `scripts/prepare_output_tree.py --root <workspace> --system-name "<system name>"`.
 4. Read [references/output-spec.md](references/output-spec.md) before writing files.
@@ -112,13 +112,16 @@ Do not move these deliverables to other top-level folders unless the user explic
 - Save all screenshots to `<system-folder>/photos/`.
 - If runtime setup requires dependency installation or browser installation, request permission when needed and continue once approved.
 
-### 6. Create the development agreement
+### 6. Create the cooperation development agreement
 
-- Put the final agreement `.docx` in `<system-folder>/docs/`.
-- Work from the template copy in `<system-folder>/docs/Template/`.
-- Change only two text locations tied to the system name unless the user explicitly points to a different pair of placeholders.
-- Preserve the rest of the legal wording and layout.
-- If no template was provided, start from `assets/agreement-template.md`, copy it into `<system-folder>/docs/Template/`, and convert the filled result into `.docx`.
+- Put the final agreement `.docx` in `<system-folder>/docs/` as `<system-name>合作开发协议.docx`.
+- Infer the party count from the user's request; if absent, use 3 parties: 甲、乙、丙.
+- For 4 parties use 甲、乙、丙、丁; continue with 戊、己、庚、辛、壬、癸 only if the user explicitly gives a larger count.
+- Generate the agreement with `scripts/build_agreement_docx.py --root <workspace> --system-name "<system name>" --party-count <n>`.
+- Use `--agreement-date "<date text>"` only when the user supplies a date; otherwise let the script default to the current date minus one calendar month, for example 2026 年 5 月 24 日 defaults to `2026 年 4 月 24 日`.
+- The generated DOCX must use title `合作开发协议`, 宋体 一号, centered. Body text must use 宋体 小四, first-line indent 2 characters, single line spacing.
+- The first party is fixed as `甲方：孔祥鑫` and `身份证号：140522200002262315`; other party names and ID numbers remain blank unless the user provides them.
+- Keep the working draft in `<system-folder>/docs/Template/` and the final `.docx` in `<system-folder>/docs/`.
 
 ### 7. Create the system manual
 
@@ -159,15 +162,13 @@ Treat module planning as a mandatory upstream step:
 - If the brief is too small, expand with reasonable supporting modules instead of dropping below 8.
 - Mention the final module count in the completion summary.
 
-## Agreement edit rule
+## Cooperation agreement rule
 
-Treat `只改两处文字` literally:
-
-- Replace the title-level system name.
-- Replace one body-level project-name reference.
-- Do not rewrite clause wording, payment terms, liability, acceptance terms, or schedule text unless the user explicitly asks.
-
-If the provided template already marks two named placeholders, use those placeholders instead of guessing.
+- Use `scripts/build_agreement_docx.py` as the default agreement generator; do not hand-build the agreement unless the script is unavailable.
+- Default to 3 parties when the user does not say how many people or parties participate.
+- Convert the party count into all repeated wording: party labels, `甲、乙、丙三方` style phrases, ownership wording, and `一式 n+1 份`.
+- Use the project name as `<system-name>平台软件` unless the system name already ends with `平台软件`, `系统软件`, or `软件`.
+- Preserve the fixed clause wording from `assets/agreement-template.md`; only the system software name, party count wording, copy count, and user-supplied party/date details should vary.
 
 ## UI prompt rule
 

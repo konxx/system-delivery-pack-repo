@@ -64,7 +64,7 @@ Use only the screens relevant to the system. Do not fabricate pages the demo doe
 
 Write final `.docx` files to:
 
-- `<system-folder>/docs/<system-name>-开发协议.docx`
+- `<system-folder>/docs/<system-name>合作开发协议.docx`
 - `<system-folder>/docs/<system-name>-系统说明书.docx`
 - `<system-folder>/docs/<system-name>代码源程序V1.0.docx`
 

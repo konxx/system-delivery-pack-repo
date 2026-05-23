@@ -13,7 +13,7 @@
 9. Run `scripts/validate_frontend_build.py`, then build the demo.
 10. Start a preview or static server from the built output and run `scripts/validate_frontend_routes.py`.
 11. Capture Playwright screenshots from the validated preview into `<system-folder>/photos/`.
-12. Copy the agreement template into `<system-folder>/docs/Template/` and edit only two system-name text slots.
+12. Generate `<system-name>合作开发协议.docx` with `scripts/build_agreement_docx.py`, using the user-supplied party count or 3 parties by default.
 13. Read `references/manual-docx-spec.md` and generate the manual outline with `scripts/build_manual_outline.py`.
 14. Have the current agent fill `manual-content.json` directly with natural Chinese content for 用途、功能 and every screenshot description.
 15. Run `scripts/build_manual_docx.py` to convert the manual draft into the final formatted `.docx` in `<system-folder>/docs/`.
@@ -61,10 +61,15 @@
 
 ## Agreement rules
 
-- Preserve the original template wording.
-- Change only the title-level system name and one body-level project-name reference.
-- If the template includes explicit placeholders, replace those exact placeholders and nothing else.
-- Keep the working copy in `<system-folder>/docs/Template/` and place the final `.docx` in `<system-folder>/docs/`.
+- Prefer `scripts/build_agreement_docx.py` for the cooperation development agreement.
+- Default to 3 parties when the user does not say how many people participate.
+- Party labels follow the count: 3 uses 甲、乙、丙; 4 uses 甲、乙、丙、丁.
+- The first party is fixed as `甲方：孔祥鑫` and `身份证号：140522200002262315`; subsequent party fields stay blank unless supplied by the user.
+- The final filename is `<system-name>合作开发协议.docx` in `<system-folder>/docs/`.
+- The title must be `合作开发协议`, 宋体 一号, centered. Body must be 宋体 小四, first-line indent 2 characters, single line spacing.
+- Use `<system-name>平台软件` as the project software name unless the system name already ends with `平台软件`, `系统软件`, or `软件`.
+- Convert all party-count wording consistently, including `甲、乙、丙三方` and `一式 n+1 份`.
+- If the user does not provide an agreement date, use the current date minus one calendar month, for example 2026 年 5 月 24 日 becomes `2026 年 4 月 24 日`.
 
 ## Manual rules
 
