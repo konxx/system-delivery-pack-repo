@@ -13,12 +13,15 @@
 9. Run `scripts/validate_frontend_build.py`, then build the demo.
 10. Start a preview or static server from the built output and run `scripts/validate_frontend_routes.py`.
 11. Capture Playwright screenshots from the validated preview into `<system-folder>/photos/`.
-12. Generate `<system-name>合作开发协议.docx` with `scripts/build_agreement_docx.py`, using the user-supplied party count or 3 parties by default.
+12. Generate `<system-name>合作开发协议.docx` with `scripts/build_agreement_docx.py`; the agreement is fixed to 甲乙双方.
 13. Read `references/manual-docx-spec.md` and generate the manual outline with `scripts/build_manual_outline.py`.
-14. Have the current agent fill `manual-content.json` directly with natural Chinese content for 用途、功能 and every screenshot description.
-15. Run `scripts/build_manual_docx.py` to convert the manual draft into the final formatted `.docx` in `<system-folder>/docs/`.
-16. Run `scripts/build_code_docx.py` to invoke the installed `codeclean` CLI and generate `<system-name>代码源程序V1.0.docx` in `<system-folder>/docs/`.
-17. Report assumptions, selected ui prompt, selected layout archetype, final module count, saved paths, and any missing validations.
+14. Read `references/manual-humanize-style.md`.
+15. Have the current agent fill `manual-content.json` directly with natural Chinese content for 用途、功能 and every screenshot description.
+16. Run `scripts/polish_manual_content.py --root <workspace> --system-name "<system name>"`; if it reports errors, revise `manual-content.json` and rerun it.
+17. Run `scripts/build_manual_docx.py` to convert the manual draft into the final formatted `.docx` in `<system-folder>/docs/`.
+18. Run `scripts/build_code_docx.py` to invoke the installed `codeclean` CLI and generate `<system-name>代码源程序V1.0.docx` in `<system-folder>/docs/`.
+19. Confirm `<system-folder>/docs/` has been cleaned and contains only the cooperation agreement, system manual, and code-source DOCX.
+20. Report assumptions, selected ui prompt, selected layout archetype, final module count, saved paths, and any missing validations.
 
 ## Full-stack code pack rules
 
@@ -62,14 +65,14 @@
 ## Agreement rules
 
 - Prefer `scripts/build_agreement_docx.py` for the cooperation development agreement.
-- Default to 3 parties when the user does not say how many people participate.
-- Party labels follow the count: 3 uses 甲、乙、丙; 4 uses 甲、乙、丙、丁.
+- The cooperation agreement is fixed to two parties: 甲方 and 乙方.
+- Do not generate 丙方 or any larger party count unless the user explicitly asks to redesign the agreement template.
 - The first party is fixed as `甲方：孔祥鑫` and `身份证号：140522200002262315`; subsequent party fields stay blank unless supplied by the user.
 - The final filename is `<system-name>合作开发协议.docx` in `<system-folder>/docs/`.
 - The title must be `合作开发协议`, 宋体 一号, centered. Body must be 宋体 小四, first-line indent 2 characters, single line spacing.
-- Use `<system-name>平台软件` as the project software name unless the system name already ends with `平台软件`, `系统软件`, or `软件`.
-- Convert all party-count wording consistently, including `甲、乙、丙三方` and `一式 n+1 份`.
-- If the user does not provide an agreement date, use the current date minus one calendar month, for example 2026 年 5 月 24 日 becomes `2026 年 4 月 24 日`.
+- Use the system name directly as the project software name. Do not append `平台软件`.
+- Use two-party wording throughout: `甲乙双方`, `对方`, `另一方`, and `双方`.
+- The agreement date is fixed as `2026年4月15日`.
 
 ## Manual rules
 
@@ -81,6 +84,10 @@
 - Use real generated languages with version numbers when filling the development-language fields.
 - Prefer `scripts/build_manual_docx.py` as the default final manual generator.
 - The current agent must fill the final copy before DOCX generation; do not rely on canned fallback paragraphs for 用途、功能 or screenshot descriptions.
+- Before building the DOCX, read `references/manual-humanize-style.md` and run `scripts/polish_manual_content.py`. Do not use an external AI/API to polish manual copy.
+- Treat errors from `polish_manual_content.py` as blocking. Revise `manual-content.json` until the report has no errors.
+- The manual must have no header on the cover page. Every page after the cover page must have a header with `<system-name>V1.0` on the left and `PAGE/NUMPAGES` page numbering shown as `X/Y` on the right, using 宋体 for Chinese text, Times New Roman for English text, and 小五 font size.
 - Explain major workflows in business order.
 - Mention demo assumptions such as mock data, omitted integrations, or simplified permissions.
 - After the manual `.docx` is complete, run the code-cleaning CLI to produce the cleaned code-source `.docx` and place it in `<system-folder>/docs/`.
+- After the code-source `.docx` is complete, remove `<system-folder>/docs/Template/` and any other non-final working files from `<system-folder>/docs/`. Final `docs` must contain only `<system-name>合作开发协议.docx`, `<system-name>-系统说明书.docx`, and `<system-name>代码源程序V1.0.docx`.

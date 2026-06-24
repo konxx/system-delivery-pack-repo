@@ -22,6 +22,14 @@ Prefer high-fidelity `.docx` generation with `python-docx` for final formatting.
   - left: 3cm
   - right: 3cm
 
+## Header
+
+- The cover page must not display a header.
+- Every page after the cover page must display a header.
+- Header typography: Chinese font 宋体, English font Times New Roman, 小五.
+- Header content: left side `<system-name>V1.0`; right side page number in `X/Y` format.
+- Use Word fields for page numbers: `PAGE/NUMPAGES`.
+
 ## Outline levels
 
 - `修订记录` and the chapter headings `一、二、三、四、五` use outline level 1.
@@ -66,7 +74,7 @@ Prefer high-fidelity `.docx` generation with `python-docx` for final formatting.
   - 修订内容
 - First data row:
   - 版本号: `V1.0`
-  - 生成日期: 留空
+  - 生成日期: `2026-6-15`
   - 作者: `孔祥鑫`
   - 修订内容: `初始版本`
 
@@ -135,7 +143,7 @@ Prefer high-fidelity `.docx` generation with `python-docx` for final formatting.
   - 基本环境
 - Data rows:
   - 操作系统 | `Windows 10 64位`
-  - 数据库软件 | `MySQL8.0`
+  - 数据库软件 | `PostgreSQL`
   - 开发软件 | `Opencode，Claude Code，Codex，IntelliJ IDEA，Navicat 16`
   - 开发语言 | 按全栈代码如实填写并带版本号，例如 `Python 3.10`
 
@@ -144,7 +152,7 @@ Prefer high-fidelity `.docx` generation with `python-docx` for final formatting.
 - New page.
 - Heading typography target: 宋体、三号、左对齐
 - Follow with one paragraph using this pattern and fill the actual frontend/backend languages:
-  - `本软件分为前端页面和后端业务逻辑，其中前端页面使用XX语言进行开发，后端业务逻辑使用XX进行开发，数据库使用MySQL8.0，数据库管理采用Navicat 16，整个系统使用IntelliJ IDEA环境进行开发。开发界面如图4-1所示。`
+  - `本软件分为前端页面和后端业务逻辑，其中前端页面使用XX语言进行开发，后端业务逻辑使用XX进行开发，数据库使用PostgreSQL，数据库管理采用Navicat 16，整个系统使用IntelliJ IDEA环境进行开发。开发界面如图4-1所示。`
 - Leave a figure placeholder for the user to insert manually.
 - Required caption below the figure:
   - `图4-1 软件开发界面`

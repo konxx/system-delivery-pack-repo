@@ -1,6 +1,6 @@
 ---
 name: system-delivery-pack
-description: Generate complete system delivery packs from prompts such as "生成仓储管理系统", "生成 CRM 系统", or "build an ERP system". Use when Codex needs to (1) plan 8-10 first-level system modules from the user's brief, (2) write non-validated full-stack source code with React, TypeScript, Python, and PostgreSQL under <system-name>/code based on those modules, (3) build a runnable frontend demo under <system-name>/demo by first choosing exactly one bundled design prompt from ui_prompt/ (30 styles) and mapping the same modules into the UI, (4) capture Playwright screenshots under <system-name>/photos, (5) create the cooperation development agreement and manual .docx files under <system-name>/docs while keeping working templates and outlines inside <system-name>/docs/Template, and (6) generate a cleaned code-source .docx from <system-name>/code with the installed `codeclean` CLI after the manual is delivered.
+description: Generate complete system delivery packs from prompts such as "生成仓储管理系统", "生成 CRM 系统", or "build an ERP system". Use when Codex needs to (1) plan 8-10 first-level system modules from the user's brief, (2) write non-validated full-stack source code with React, TypeScript, Python, and PostgreSQL under the system folder code directory based on those modules, (3) build a runnable frontend demo under the system folder demo directory by first choosing exactly one bundled design prompt from ui_prompt/ (30 styles) and mapping the same modules into the UI, (4) capture Playwright screenshots under the system folder photos directory, (5) create the cooperation development agreement and manual .docx files under the system folder docs directory while using docs/Template only as a temporary working area, and (6) generate a cleaned code-source .docx from the system folder code directory with the installed `codeclean` CLI after the manual is delivered, then clean docs so only the three final DOCX files remain.
 ---
 
 # System Delivery Pack
@@ -20,14 +20,15 @@ Generate a fixed set of project deliverables for a named system. Favor completen
 
 ## Quick start
 
-1. Extract the system name, the primary user roles, and the cooperation-agreement party count. If the user does not specify party count, use 3 parties.
+1. Extract the system name and the primary user roles. The cooperation agreement is fixed to two parties: 甲方 and 乙方.
 2. Read [references/module-planning.md](references/module-planning.md) and plan 8-10 first-level modules before writing any deliverable.
 3. Run `scripts/prepare_output_tree.py --root <workspace> --system-name "<system name>"`.
 4. Read [references/output-spec.md](references/output-spec.md) before writing files.
 5. Read [references/ui-prompt-selection.md](references/ui-prompt-selection.md) before creating the pure-frontend deliverable.
 6. Read [references/layout-archetypes.md](references/layout-archetypes.md) before deciding the frontend information architecture.
 7. Read [references/manual-docx-spec.md](references/manual-docx-spec.md) before generating the product manual `.docx`.
-8. Read [references/delivery-workflow.md](references/delivery-workflow.md) before creating screenshots or documents.
+8. Read [references/manual-humanize-style.md](references/manual-humanize-style.md) before filling manual copy.
+9. Read [references/delivery-workflow.md](references/delivery-workflow.md) before creating screenshots or documents.
 
 ## Output contract
 
@@ -37,7 +38,7 @@ Write the deliverables to these locations:
 - `<system-folder>/demo/`: runnable pure-frontend demo app.
 - `<system-folder>/photos/`: Playwright screenshots of the main screens and flows.
 - `<system-folder>/docs/`: final agreement, manual, and code-source `.docx` files.
-- `<system-folder>/docs/Template/`: copied user templates, fallback seed templates, outlines, manifests, and other working files.
+- `<system-folder>/docs/Template/`: temporary working area for copied templates, fallback seed templates, outlines, manifests, and draft files. This folder must be removed before final delivery.
 
 Do not move these deliverables to other top-level folders unless the user explicitly asks.
 
@@ -115,13 +116,13 @@ Do not move these deliverables to other top-level folders unless the user explic
 ### 6. Create the cooperation development agreement
 
 - Put the final agreement `.docx` in `<system-folder>/docs/` as `<system-name>合作开发协议.docx`.
-- Infer the party count from the user's request; if absent, use 3 parties: 甲、乙、丙.
-- For 4 parties use 甲、乙、丙、丁; continue with 戊、己、庚、辛、壬、癸 only if the user explicitly gives a larger count.
-- Generate the agreement with `scripts/build_agreement_docx.py --root <workspace> --system-name "<system name>" --party-count <n>`.
-- Use `--agreement-date "<date text>"` only when the user supplies a date; otherwise let the script default to the current date minus one calendar month, for example 2026 年 5 月 24 日 defaults to `2026 年 4 月 24 日`.
+- The agreement is fixed to two parties: 甲方 and 乙方. Do not generate 丙方 or any multi-party wording.
+- Generate the agreement with `scripts/build_agreement_docx.py --root <workspace> --system-name "<system name>"`.
+- The agreement date is fixed as `2026年4月15日`.
+- Use the system name directly as the project software name. Do not append `平台软件`.
 - The generated DOCX must use title `合作开发协议`, 宋体 一号, centered. Body text must use 宋体 小四, first-line indent 2 characters, single line spacing.
-- The first party is fixed as `甲方：孔祥鑫` and `身份证号：140522200002262315`; other party names and ID numbers remain blank unless the user provides them.
-- Keep the working draft in `<system-folder>/docs/Template/` and the final `.docx` in `<system-folder>/docs/`.
+- The first party is fixed as `甲方：孔祥鑫` and `身份证号：140522200002262315`; 乙方 name and ID number remain blank unless the user provides them.
+- Keep the working draft in `<system-folder>/docs/Template/` during generation and the final `.docx` in `<system-folder>/docs/`. The Template folder is temporary and must not remain in the delivered `docs` folder.
 
 ### 7. Create the system manual
 
@@ -142,7 +143,11 @@ Do not move these deliverables to other top-level folders unless the user explic
 - The language must be concise, natural, and specific to the system. Do not leave templated placeholders or generic canned text.
 - Explain what each screen does, who uses it, what the key actions are, and which planned module it belongs to.
 - In section `五、软件使用`, place one screenshot subsection per page with one natural-language paragraph around 200 Chinese characters.
+- Before writing final manual copy, read [references/manual-humanize-style.md](references/manual-humanize-style.md). Use the local two-pass workflow to remove generic AI-style wording while preserving facts, modules, screenshots, and stack details.
+- Run `scripts/polish_manual_content.py --root <workspace> --system-name "<system name>"` after filling `manual-content.json`. If it reports errors, revise the JSON and rerun the script before `build_manual_docx.py`.
+- Do not use any external AI/API service to polish or generate manual copy.
 - Keep the cover page, revision table, runtime tables, and figure captions consistent with the manual docx spec.
+- The manual must have no header on the cover page. Every page after the cover page must have a header with `<system-name>V1.0` on the left and `PAGE/NUMPAGES` page numbering shown as `X/Y` on the right, using 宋体 for Chinese text, Times New Roman for English text, and 小五 font size.
 - If no user-provided manual template exists, start from `assets/manual-template.md`, copy it into `<system-folder>/docs/Template/`, and convert the filled result into `.docx`.
 
 ### 8. Create the code source document
@@ -150,6 +155,10 @@ Do not move these deliverables to other top-level folders unless the user explic
 - After the system manual `.docx` is finished, run `scripts/build_code_docx.py --root <workspace> --system-name "<system name>"` to invoke the installed `codeclean` CLI on `<system-folder>/code/`.
 - Save the final cleaned code-source document in `<system-folder>/docs/` as `<system-name>代码源程序V1.0.docx`.
 - Keep the output in `<system-folder>/docs/`, not in `<system-folder>/docs/Template/`.
+- `scripts/build_code_docx.py` cleans `<system-folder>/docs/` after successful code-source generation. Final delivery must contain only these three files:
+  - `<system-name>合作开发协议.docx`
+  - `<system-name>-系统说明书.docx`
+  - `<system-name>代码源程序V1.0.docx`
 
 ## Module planning rule
 
@@ -165,10 +174,11 @@ Treat module planning as a mandatory upstream step:
 ## Cooperation agreement rule
 
 - Use `scripts/build_agreement_docx.py` as the default agreement generator; do not hand-build the agreement unless the script is unavailable.
-- Default to 3 parties when the user does not say how many people or parties participate.
-- Convert the party count into all repeated wording: party labels, `甲、乙、丙三方` style phrases, ownership wording, and `一式 n+1 份`.
-- Use the project name as `<system-name>平台软件` unless the system name already ends with `平台软件`, `系统软件`, or `软件`.
-- Preserve the fixed clause wording from `assets/agreement-template.md`; only the system software name, party count wording, copy count, and user-supplied party/date details should vary.
+- The agreement template is fixed to 甲乙双方. Reject or ignore requests to generate 丙方 or any larger party count unless the user explicitly asks to redesign the template.
+- Use two-party wording throughout: `甲乙双方`, `对方`, `另一方`, and `双方`. Do not leave `各方`, `三方`, `多方`, `其余各方`, or `全体合作方` wording in the final agreement.
+- Use the system name directly as the project software name. Do not append `平台软件`.
+- The agreement date is fixed as `2026年4月15日`.
+- Preserve the fixed clause wording from `assets/agreement-template.md`; only the system name and user-supplied 乙方 details should vary.
 
 ## UI prompt rule
 
@@ -203,11 +213,11 @@ Treat layout composition as a separate design decision from color and typography
 - Make the runnable frontend believable enough for screenshots and demo review.
 - Prefer screenshots from a built preview server rather than an unstable dev server.
 - Keep mock data coherent across list, detail, edit, and drill-down pages.
-- Keep manual copy natural and specific. Avoid obviously templated wording.
+- Keep manual copy natural and specific. Avoid obviously templated wording, marketing claims, and generic AI-style phrases.
 - Keep filenames stable and descriptive.
 - Keep the full-stack code and the runnable frontend as separate deliverables.
 - Keep every deliverable inside the user-named system folder.
-- Leave the template copies and outline files in `<system-folder>/docs/Template/` for traceability.
+- Do not leave working files in the final `docs` folder. Final `docs` must contain only the cooperation agreement, system manual, and code-source DOCX.
 
 ## Resources
 
@@ -216,6 +226,7 @@ Treat layout composition as a separate design decision from color and typography
 - Read [references/ui-prompt-selection.md](references/ui-prompt-selection.md) for the mandatory pure-frontend style-selection workflow.
 - Read [references/layout-archetypes.md](references/layout-archetypes.md) for layout variety and shell selection guidance.
 - Read [references/manual-docx-spec.md](references/manual-docx-spec.md) for the required Chinese product-manual structure.
+- Read [references/manual-humanize-style.md](references/manual-humanize-style.md) before filling and polishing manual copy.
 - Read [references/delivery-workflow.md](references/delivery-workflow.md) for the end-to-end checklist and document rules.
 - Read `D:\Projects\code_clean\CLI.md` before generating the cleaned code-source `.docx`.
 - Run `scripts/prepare_output_tree.py` to create the folder tree and seed templates.
@@ -224,6 +235,7 @@ Treat layout composition as a separate design decision from color and typography
 - Run `scripts/validate_frontend_build.py` before building the frontend demo for screenshots.
 - Run `scripts/validate_frontend_routes.py` against the preview server before Playwright capture.
 - Run `scripts/build_manual_outline.py` to generate a screenshot-driven manual outline before writing the final `.docx`.
+- Run `scripts/polish_manual_content.py` after filling `manual-content.json` and before generating the final manual `.docx`.
 - Run `scripts/build_manual_docx.py` to generate the final formatted manual `.docx`.
 - Run `scripts/build_code_docx.py` after the manual to generate the cleaned code-source `.docx`.
 - Use `assets/agreement-template.md` and `assets/manual-template.md` as fallback seeds when the user does not provide templates.

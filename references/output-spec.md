@@ -9,7 +9,7 @@ Always create one top-level folder named after the user input system name:
 - `<system-folder>/demo/`
 - `<system-folder>/photos/`
 - `<system-folder>/docs/`
-- `<system-folder>/docs/Template/`
+- `<system-folder>/docs/Template/` during generation only
 
 ## Deliverable mapping
 
@@ -70,7 +70,7 @@ Write final `.docx` files to:
 
 If the user prefers English filenames, keep the same folder and switch only the visible names.
 
-### 5. Template working area
+### 5. Temporary working area
 
 Use `<system-folder>/docs/Template/` for:
 
@@ -82,3 +82,9 @@ Use `<system-folder>/docs/Template/` for:
 - manual draft files intended for Pandoc or `python-docx` based conversion
 
 Keep the final `.docx` files in `<system-folder>/docs/`, not in `<system-folder>/docs/Template/`.
+
+After `<system-name>代码源程序V1.0.docx` is generated, remove `<system-folder>/docs/Template/` and any other non-final working files from `<system-folder>/docs/`. The delivered `docs` folder must contain only:
+
+- `<system-name>合作开发协议.docx`
+- `<system-name>-系统说明书.docx`
+- `<system-name>代码源程序V1.0.docx`

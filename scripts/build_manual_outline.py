@@ -10,6 +10,9 @@ import json
 import re
 from pathlib import Path
 
+REVISION_DATE = "2026-6-15"
+DATABASE_SOFTWARE = "PostgreSQL"
+
 
 def load_manifest(root: Path, system_name: str) -> dict:
     if system_name.strip():
@@ -242,7 +245,7 @@ def main() -> int:
         "",
         "| 版本号 | 生成日期 | 作者 | 修订内容 |",
         "| --- | --- | --- | --- |",
-        "| V1.0 |  | 孔祥鑫 | 初始版本 |",
+        f"| V1.0 | {REVISION_DATE} | 孔祥鑫 | 初始版本 |",
         "",
         "\\newpage",
         "",
@@ -285,7 +288,7 @@ def main() -> int:
         "| 名称 | 基本环境 |",
         "| --- | --- |",
         "| 操作系统 | Windows 10 64位 |",
-        "| 数据库软件 | MySQL8.0 |",
+        f"| 数据库软件 | {DATABASE_SOFTWARE} |",
         "| 开发软件 | Opencode，Claude Code，Codex，IntelliJ IDEA，Navicat 16 |",
         "| 开发语言 | [按全栈代码如实填写并补版本号，例如 Python 3.10、TypeScript 5.0] |",
         "",
@@ -293,7 +296,7 @@ def main() -> int:
         "",
         "### 4.3 软件开发环境",
         "",
-        "本软件分为前端页面和后端业务逻辑，其中前端页面使用[前端语言及版本]进行开发，后端业务逻辑使用[后端语言及版本]进行开发，数据库使用MySQL8.0，数据库管理采用Navicat 16，整个系统使用IntelliJ IDEA环境进行开发。开发界面如图4-1所示。",
+        f"本软件分为前端页面和后端业务逻辑，其中前端页面使用[前端语言及版本]进行开发，后端业务逻辑使用[后端语言及版本]进行开发，数据库使用{DATABASE_SOFTWARE}，数据库管理采用Navicat 16，整个系统使用IntelliJ IDEA环境进行开发。开发界面如图4-1所示。",
         "",
         "[在此处粘贴开发界面图片]",
         "",

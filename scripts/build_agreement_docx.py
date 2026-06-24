@@ -6,8 +6,6 @@ Build the cooperation development agreement DOCX for a system delivery pack.
 from __future__ import annotations
 
 import argparse
-import calendar
-from datetime import date
 import json
 import re
 from pathlib import Path
@@ -21,7 +19,8 @@ from docx.shared import Cm, Pt, RGBColor
 FONT_NAME = "宋体"
 TITLE_SIZE_PT = 26
 BODY_SIZE_PT = 12
-PARTY_LABELS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
+PARTY_LABELS = ["甲", "乙"]
+DEFAULT_AGREEMENT_DATE = "2026年4月15日"
 
 
 def safe_path_name(value: str) -> str:
@@ -37,12 +36,7 @@ def display_system_name(system_name: str) -> str:
 
 
 def project_software_name(system_name: str) -> str:
-    name = display_system_name(system_name)
-    if name.endswith("平台软件") or name.endswith("系统软件") or name.endswith("软件"):
-        return name
-    if name.endswith("平台"):
-        return f"{name}软件"
-    return f"{name}平台软件"
+    return display_system_name(system_name)
 
 
 def load_manifest(root: Path, system_name: str) -> dict:
@@ -65,18 +59,6 @@ def resolve_system_dir(root: Path, system_name: str) -> Path:
     manifest = load_manifest(root, system_name)
     safe_name = manifest.get("system_folder") or safe_path_name(system_name)
     return root / safe_name
-
-
-def chinese_number(number: int) -> str:
-    digits = "零一二三四五六七八九"
-    if 0 <= number <= 10:
-        return "十" if number == 10 else digits[number]
-    if number < 20:
-        return f"十{digits[number % 10]}"
-    if number < 100:
-        tens, ones = divmod(number, 10)
-        return f"{digits[tens]}十" if ones == 0 else f"{digits[tens]}十{digits[ones]}"
-    return str(number)
 
 
 def parse_party_count(raw: str) -> int:
@@ -104,31 +86,22 @@ def parse_party_count(raw: str) -> int:
 
 
 def party_count_noun(count: int) -> str:
-    return "双方" if count == 2 else f"{chinese_number(count)}方"
+    if count != 2:
+        raise ValueError("合作开发协议模板固定为甲乙双方，不再生成丙方及以上。")
+    return "双方"
 
 
-def subtract_one_calendar_month(value: date) -> date:
-    year = value.year
-    month = value.month - 1
-    if month == 0:
-        year -= 1
-        month = 12
-    day = min(value.day, calendar.monthrange(year, month)[1])
-    return date(year, month, day)
-
-
-def default_agreement_date(today: date | None = None) -> str:
-    base_date = today or date.today()
-    agreement_date = subtract_one_calendar_month(base_date)
-    return f"{agreement_date.year} 年 {agreement_date.month} 月 {agreement_date.day} 日"
+def default_agreement_date() -> str:
+    return DEFAULT_AGREEMENT_DATE
 
 
 def build_agreement_lines(system_name: str, party_count: int, agreement_date: str) -> list[str]:
+    if party_count != 2:
+        raise ValueError("合作开发协议模板固定为甲乙双方，不再生成丙方及以上。")
     labels = PARTY_LABELS[:party_count]
-    party_list = "、".join(labels)
-    party_phrase = f"{party_list}{party_count_noun(party_count)}"
+    party_phrase = "甲、乙双方"
     software_name = project_software_name(system_name)
-    copies_text = chinese_number(party_count + 1)
+    copies_text = "三"
 
     lines = []
     for index, label in enumerate(labels):
@@ -141,35 +114,35 @@ def build_agreement_lines(system_name: str, party_count: int, agreement_date: st
 
     lines.extend(
         [
-            "鉴于，协议各方均为计算机软件专业开发人员，能够进行创造性的软件开发活动。并且，协议各方有意愿共同从事软件的开发工作。为了规范各方的权利义务，在《中华人民共和国合同法》及其他相关法规政策的原则指导下，订立本协议书，各方共同遵守：",
+            "鉴于，甲乙双方均为计算机软件专业开发人员，能够进行创造性的软件开发活动。并且，甲乙双方有意愿共同从事软件的开发工作。为了规范双方的权利义务，在《中华人民共和国合同法》及其他相关法规政策的原则指导下，订立本协议书，双方共同遵守：",
             "第一条、合作宗旨",
-            f"{party_phrase}于 {agreement_date}共同约定完成{software_name}的开发工作，并共同享有开发成果而合作。",
+            f"{party_phrase}于{agreement_date}共同约定完成{software_name}的开发工作，并共同享有开发成果而合作。",
             "第二条、合作项目和范围",
-            f"协议各方共同开发{software_name}，合作范围包括软件的代码编写、调试、测试等开发工作。",
+            f"甲乙双方共同开发{software_name}，合作范围包括软件的代码编写、调试、测试等开发工作。",
             "第三条、合作方式",
-            "1、协议各方按照软件编程工作的正常分工进行编写，任何一方不得随意更改软件的重大功能和事项，以免对其余各方造成履约困难。",
-            "2、合作各方应坚持勤勉努力诚实信用的原则，进行各方分别负责的软件的编程工作，并考虑到各方软件的兼容和接合。如部分合作人发生特殊技术困难，其余合作方有义务为其提供合理适当的技术帮助。",
+            "1、甲乙双方按照软件编程工作的正常分工进行编写，任何一方不得随意更改软件的重大功能和事项，以免对对方造成履约困难。",
+            "2、甲乙双方应坚持勤勉努力诚实信用的原则，进行双方分别负责的软件的编程工作，并考虑到双方软件的兼容和接合。如一方发生特殊技术困难，对方有义务为其提供合理适当的技术帮助。",
             "第四条、知识产权",
-            "1、各方编写的软件源代码、技术文档及汇编而成的程序本身，其著作权均由合作方共同享有。",
-            "2、合作各方在编写软件的过程中，不得有侵犯他人知识产权的行为，否则，应对外承担全部侵权责任。",
+            "1、双方编写的软件源代码、技术文档及汇编而成的程序本身，其著作权均由甲乙双方共同享有。",
+            "2、甲乙双方在编写软件的过程中，不得有侵犯他人知识产权的行为，否则，应对外承担全部侵权责任。",
             "第五条、协议变更",
-            "1、经合作各方协商同意，本协议可以作相应变更。",
-            "2、任何合作方未经与其他各方协商，擅自变更本协议条款或者将本协议权利义务转让他人，均为无效。",
+            "1、经甲乙双方协商同意，本协议可以作相应变更。",
+            "2、任何一方未经与对方协商，擅自变更本协议条款或者将本协议权利义务转让他人，均为无效。",
             "第六条、禁止行为",
-            "1、未经全体合作方同意，禁止任何合作方私自以团体名义进行业务活动；如其业务获得利益归合作各方共有，造成损失按实际损失赔偿。",
-            "2、禁止合作方泄露本协议所涉及的相关商业秘密。",
+            "1、未经双方一致同意，禁止任何一方私自以团体名义进行业务活动；如其业务获得利益归甲乙双方共有，造成损失按实际损失赔偿。",
+            "2、禁止任何一方泄露本协议所涉及的相关商业秘密。",
             "第七条、合作的终止",
             "合作开发活动因以下事由之一得终止∶",
-            "1、全体合作人同意终止合作关系。",
+            "1、甲乙双方同意终止合作关系。",
             "2、合作项目因技术原因，根本不能完成。",
             "3、合作项目违反法律被撤销。",
             "第八条、违约责任",
-            "1、在合作期内，项目合作各方中任一方未经其他各方协商认可擅自退出该合作项目，违约方同时赔偿被侵害方的投入损失及其他合作期内应得收益。并且必须遵守技术、市场保密条款，两年内不得在当地使用或经营本项目的同类技术内容及客户资源。否则项目合作各方有权追究违约方的一切经济法律责任。",
-            f"2、在合作期内因战争、灾害、疾病等不可抗力因素导致项目合作解散或合作期满各合作方不再合作，该项目技术内容归{party_count_noun(party_count)}所有。",
-            "3、合作方如有一方违反本协议，则其他方有权取消与违约方的合作并追究违约方的一切经济法律责任。",
+            "1、在合作期内，项目合作双方中任一方未经对方协商认可擅自退出该合作项目，违约方同时赔偿被侵害方的投入损失及其他合作期内应得收益。并且必须遵守技术、市场保密条款，两年内不得在当地使用或经营本项目的同类技术内容及客户资源。否则守约方有权追究违约方的一切经济法律责任。",
+            "2、在合作期内因战争、灾害、疾病等不可抗力因素导致项目合作解散或合作期满双方不再合作，该项目技术内容归甲乙双方所有。",
+            "3、甲乙双方如有一方违反本协议，则另一方有权取消与违约方的合作并追究违约方的一切经济法律责任。",
             "第九条、纠纷的解决",
-            "合作各方之间如发生纠纷，应共同协商，本着有利于事业发展的原则予以解决。如协商不成，可以诉诸法院。",
-            "第十条、本协议如有未尽事宜，应由合作人集体讨论补充或修改。补充和修改的内容与本协议具有同等效力。",
+            "甲乙双方之间如发生纠纷，应共同协商，本着有利于事业发展的原则予以解决。如协商不成，可以诉诸法院。",
+            "第十条、本协议如有未尽事宜，应由甲乙双方共同讨论补充或修改。补充和修改的内容与本协议具有同等效力。",
             f"第十一条、本协议一式{copies_text}份，{party_phrase}各执一份，交国家版权局备案一份。",
         ]
     )
@@ -236,16 +209,16 @@ def main() -> int:
     )
     parser.add_argument("--root", default=".", help="Workspace root")
     parser.add_argument("--system-name", required=True, help="Display name of the system")
-    parser.add_argument("--party-count", type=parse_party_count, default=3, help="Number of agreement parties; default 3")
+    parser.add_argument("--party-count", type=parse_party_count, default=2, help="Number of agreement parties; fixed to 2")
     parser.add_argument(
         "--agreement-date",
         default=None,
-        help="Date text used in Article 1; defaults to today minus one calendar month",
+        help="Date text used in Article 1; defaults to 2026年4月15日",
     )
     args = parser.parse_args()
 
-    if args.party_count < 2 or args.party_count > len(PARTY_LABELS):
-        raise ValueError(f"party-count must be between 2 and {len(PARTY_LABELS)}")
+    if args.party_count != 2:
+        raise ValueError("party-count must be 2; the agreement template is fixed to 甲乙双方.")
 
     root = Path(args.root).resolve()
     system_display_name = display_system_name(args.system_name.strip())

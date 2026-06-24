@@ -19,6 +19,9 @@ from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
 PANDOC_PATH = Path(r"C:\Program Files\Pandoc\pandoc.exe")
+HEADER_SIZE_PT = 9
+REVISION_DATE = "2026-6-15"
+DATABASE_SOFTWARE = "PostgreSQL"
 
 
 def safe_path_name(value: str) -> str:
@@ -356,10 +359,189 @@ def validate_manual_content(manual_content: dict, screenshots: list[Path]) -> tu
 
 def set_run_songti(run, size_pt: float, bold: bool = False) -> None:
     run.font.name = "宋体"
+    run._element.rPr.rFonts.set(qn("w:ascii"), "Times New Roman")
+    run._element.rPr.rFonts.set(qn("w:hAnsi"), "Times New Roman")
     run._element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
     run.font.size = Pt(size_pt)
     run.bold = bold
     run.font.color.rgb = RGBColor(0, 0, 0)
+
+
+def set_run_songti_times(run, size_pt: float, bold: bool = False) -> None:
+    run.font.name = "Times New Roman"
+    run._element.rPr.rFonts.set(qn("w:ascii"), "Times New Roman")
+    run._element.rPr.rFonts.set(qn("w:hAnsi"), "Times New Roman")
+    run._element.rPr.rFonts.set(qn("w:eastAsia"), "宋体")
+    run.font.size = Pt(size_pt)
+    run.bold = bold
+    run.font.color.rgb = RGBColor(0, 0, 0)
+
+
+def append_field(paragraph, instruction: str, result_text: str = "", size_pt: float = HEADER_SIZE_PT) -> None:
+    def add_field_child(child) -> None:
+        run = OxmlElement("w:r")
+        r_pr = OxmlElement("w:rPr")
+        r_fonts = OxmlElement("w:rFonts")
+        r_fonts.set(qn("w:ascii"), "Times New Roman")
+        r_fonts.set(qn("w:hAnsi"), "Times New Roman")
+        r_fonts.set(qn("w:eastAsia"), "宋体")
+        r_pr.append(r_fonts)
+        size = OxmlElement("w:sz")
+        size.set(qn("w:val"), str(int(size_pt * 2)))
+        r_pr.append(size)
+        run.append(r_pr)
+        run.append(child)
+        paragraph._p.append(run)
+
+    fld_begin = OxmlElement("w:fldChar")
+    fld_begin.set(qn("w:fldCharType"), "begin")
+    instr_text = OxmlElement("w:instrText")
+    instr_text.set(qn("xml:space"), "preserve")
+    instr_text.text = f" {instruction} "
+    fld_separate = OxmlElement("w:fldChar")
+    fld_separate.set(qn("w:fldCharType"), "separate")
+    result_run = OxmlElement("w:r")
+    result_r_pr = OxmlElement("w:rPr")
+    result_fonts = OxmlElement("w:rFonts")
+    result_fonts.set(qn("w:ascii"), "Times New Roman")
+    result_fonts.set(qn("w:hAnsi"), "Times New Roman")
+    result_fonts.set(qn("w:eastAsia"), "宋体")
+    result_r_pr.append(result_fonts)
+    result_size = OxmlElement("w:sz")
+    result_size.set(qn("w:val"), str(int(size_pt * 2)))
+    result_r_pr.append(result_size)
+    result_text_element = OxmlElement("w:t")
+    result_text_element.text = result_text
+    result_run.append(result_r_pr)
+    result_run.append(result_text_element)
+    fld_end = OxmlElement("w:fldChar")
+    fld_end.set(qn("w:fldCharType"), "end")
+
+    add_field_child(fld_begin)
+    add_field_child(instr_text)
+    add_field_child(fld_separate)
+    paragraph._p.append(result_run)
+    add_field_child(fld_end)
+
+
+def clear_block_items(container) -> None:
+    for child in list(container._element):
+        container._element.remove(child)
+
+
+def set_table_width(table, width) -> None:
+    tbl_pr = table._tbl.tblPr
+    tbl_width = tbl_pr.find(qn("w:tblW"))
+    if tbl_width is None:
+        tbl_width = OxmlElement("w:tblW")
+        tbl_pr.append(tbl_width)
+    tbl_width.set(qn("w:w"), str(width.twips))
+    tbl_width.set(qn("w:type"), "dxa")
+
+    tbl_layout = tbl_pr.find(qn("w:tblLayout"))
+    if tbl_layout is None:
+        tbl_layout = OxmlElement("w:tblLayout")
+        tbl_pr.append(tbl_layout)
+    tbl_layout.set(qn("w:type"), "fixed")
+
+
+def remove_table_borders(table) -> None:
+    tbl_pr = table._tbl.tblPr
+    borders = tbl_pr.find(qn("w:tblBorders"))
+    if borders is None:
+        borders = OxmlElement("w:tblBorders")
+        tbl_pr.append(borders)
+    for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        element = borders.find(qn(f"w:{edge}"))
+        if element is None:
+            element = OxmlElement(f"w:{edge}")
+            borders.append(element)
+        element.set(qn("w:val"), "nil")
+
+
+def set_table_cell_margins(table, margin_twips: int = 0) -> None:
+    tbl_pr = table._tbl.tblPr
+    margins = tbl_pr.find(qn("w:tblCellMar"))
+    if margins is None:
+        margins = OxmlElement("w:tblCellMar")
+        tbl_pr.append(margins)
+    for side in ("top", "left", "bottom", "right"):
+        element = margins.find(qn(f"w:{side}"))
+        if element is None:
+            element = OxmlElement(f"w:{side}")
+            margins.append(element)
+        element.set(qn("w:w"), str(margin_twips))
+        element.set(qn("w:type"), "dxa")
+
+
+def set_cell_width(cell, width) -> None:
+    cell.width = width
+    tc_pr = cell._tc.get_or_add_tcPr()
+    tc_width = tc_pr.find(qn("w:tcW"))
+    if tc_width is None:
+        tc_width = OxmlElement("w:tcW")
+        tc_pr.append(tc_width)
+    tc_width.set(qn("w:w"), str(width.twips))
+    tc_width.set(qn("w:type"), "dxa")
+
+
+def configure_page_section(section) -> None:
+    section.page_width = Cm(21.0)
+    section.page_height = Cm(29.0)
+    section.top_margin = Cm(2.5)
+    section.bottom_margin = Cm(2.5)
+    section.left_margin = Cm(3.0)
+    section.right_margin = Cm(3.0)
+
+
+def add_manual_header(section, system_name: str) -> None:
+    section.different_first_page_header_footer = True
+    section.header.is_linked_to_previous = False
+    section.first_page_header.is_linked_to_previous = False
+    clear_block_items(section.first_page_header)
+
+    header = section.header
+    clear_block_items(header)
+
+    table = header.add_table(rows=1, cols=2, width=Cm(15.0))
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    table.autofit = False
+    set_table_width(table, Cm(15.0))
+    remove_table_borders(table)
+    set_table_cell_margins(table, 0)
+
+    left_cell, right_cell = table.rows[0].cells
+    set_cell_width(left_cell, Cm(11.5))
+    set_cell_width(right_cell, Cm(3.5))
+    left_cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+    right_cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+
+    left_paragraph = left_cell.paragraphs[0]
+    left_paragraph.clear()
+    left_paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    left_paragraph.paragraph_format.space_before = Pt(0)
+    left_paragraph.paragraph_format.space_after = Pt(0)
+
+    left_run = left_paragraph.add_run(f"{system_name}V1.0")
+    set_run_songti_times(left_run, HEADER_SIZE_PT)
+
+    right_paragraph = right_cell.paragraphs[0]
+    right_paragraph.clear()
+    right_paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    right_paragraph.paragraph_format.space_before = Pt(0)
+    right_paragraph.paragraph_format.space_after = Pt(0)
+
+    append_field(right_paragraph, "PAGE", "1")
+    slash_run = right_paragraph.add_run("/")
+    set_run_songti_times(slash_run, HEADER_SIZE_PT)
+    append_field(right_paragraph, "NUMPAGES", "1")
+
+
+def disable_auto_update_fields(document: Document) -> None:
+    settings = document.settings._element
+    update_fields = settings.find(qn("w:updateFields"))
+    if update_fields is not None:
+        settings.remove(update_fields)
 
 
 def add_paragraph(
@@ -408,6 +590,11 @@ def set_table_layout(
 
 
 def add_toc_field(paragraph) -> None:
+    def append_run(child) -> None:
+        run = OxmlElement("w:r")
+        run.append(child)
+        paragraph._p.append(run)
+
     fld_begin = OxmlElement("w:fldChar")
     fld_begin.set(qn("w:fldCharType"), "begin")
 
@@ -419,25 +606,33 @@ def add_toc_field(paragraph) -> None:
     fld_separate.set(qn("w:fldCharType"), "separate")
 
     placeholder_run = OxmlElement("w:r")
+    placeholder_rpr = OxmlElement("w:rPr")
+    placeholder_fonts = OxmlElement("w:rFonts")
+    placeholder_fonts.set(qn("w:ascii"), "宋体")
+    placeholder_fonts.set(qn("w:hAnsi"), "宋体")
+    placeholder_fonts.set(qn("w:eastAsia"), "宋体")
+    placeholder_rpr.append(placeholder_fonts)
+    placeholder_run.append(placeholder_rpr)
     placeholder_text = OxmlElement("w:t")
+    placeholder_text.set(qn("xml:space"), "preserve")
     placeholder_text.text = "右键更新目录"
     placeholder_run.append(placeholder_text)
 
     fld_end = OxmlElement("w:fldChar")
     fld_end.set(qn("w:fldCharType"), "end")
 
-    paragraph._p.append(fld_begin)
-    paragraph._p.append(instr_text)
-    paragraph._p.append(fld_separate)
+    append_run(fld_begin)
+    append_run(instr_text)
+    append_run(fld_separate)
     paragraph._p.append(placeholder_run)
-    paragraph._p.append(fld_end)
+    append_run(fld_end)
 
 
 def add_revision_table(document: Document, author: str) -> None:
     table = document.add_table(rows=2, cols=4)
     table.style = "Table Grid"
     headers = ["版本号", "生成日期", "作者", "修订内容"]
-    values = ["V1.0", "", author, "初始版本"]
+    values = ["V1.0", REVISION_DATE, author, "初始版本"]
     for index, header in enumerate(headers):
         table.cell(0, index).text = header
         table.cell(1, index).text = values[index]
@@ -514,7 +709,7 @@ def render_markdown_draft(
         "",
         "| 版本号 | 生成日期 | 作者 | 修订内容 |",
         "| --- | --- | --- | --- |",
-        "| V1.0 |  | 孔祥鑫 | 初始版本 |",
+        f"| V1.0 | {REVISION_DATE} | 孔祥鑫 | 初始版本 |",
         "",
         "\\newpage",
         "",
@@ -557,7 +752,7 @@ def render_markdown_draft(
         "| 名称 | 基本环境 |",
         "| --- | --- |",
         "| 操作系统 | Windows 10 64位 |",
-        "| 数据库软件 | MySQL8.0 |",
+        f"| 数据库软件 | {DATABASE_SOFTWARE} |",
         "| 开发软件 | Opencode，Claude Code，Codex，IntelliJ IDEA，Navicat 16 |",
         f"| 开发语言 | {fullstack_languages} |",
         "",
@@ -567,7 +762,7 @@ def render_markdown_draft(
         "",
         choose_text(
             manual_content.get("development_environment_text"),
-            f"本软件分为前端页面和后端业务逻辑，其中前端页面使用{frontend_language}进行开发，后端业务逻辑使用{backend_language}进行开发，数据库使用MySQL8.0，数据库管理采用Navicat 16，整个系统使用IntelliJ IDEA环境进行开发。开发界面如图4-1所示。",
+            f"本软件分为前端页面和后端业务逻辑，其中前端页面使用{frontend_language}进行开发，后端业务逻辑使用{backend_language}进行开发，数据库使用{DATABASE_SOFTWARE}，数据库管理采用Navicat 16，整个系统使用IntelliJ IDEA环境进行开发。开发界面如图4-1所示。",
         ),
         "",
         "[在此处粘贴开发界面图片]",
@@ -627,12 +822,8 @@ def build_final_docx(
 ) -> None:
     document = Document()
     section = document.sections[0]
-    section.page_width = Cm(21.0)
-    section.page_height = Cm(29.0)
-    section.top_margin = Cm(2.5)
-    section.bottom_margin = Cm(2.5)
-    section.left_margin = Cm(3.0)
-    section.right_margin = Cm(3.0)
+    configure_page_section(section)
+    add_manual_header(section, system_name)
 
     for _ in range(5):
         document.add_paragraph("")
@@ -703,7 +894,7 @@ def build_final_docx(
         ("名称", "基本环境"),
         [
             ("操作系统", "Windows 10 64位"),
-            ("数据库软件", "MySQL8.0"),
+            ("数据库软件", DATABASE_SOFTWARE),
             ("开发软件", "Opencode，Claude Code，Codex，IntelliJ IDEA，Navicat 16"),
             ("开发语言", fullstack_languages),
         ],
@@ -716,7 +907,7 @@ def build_final_docx(
         document,
         choose_text(
             manual_content.get("development_environment_text"),
-            f"本软件分为前端页面和后端业务逻辑，其中前端页面使用{frontend_language}进行开发，后端业务逻辑使用{backend_language}进行开发，数据库使用MySQL8.0，数据库管理采用Navicat 16，整个系统使用IntelliJ IDEA环境进行开发。开发界面如图4-1所示。",
+            f"本软件分为前端页面和后端业务逻辑，其中前端页面使用{frontend_language}进行开发，后端业务逻辑使用{backend_language}进行开发，数据库使用{DATABASE_SOFTWARE}，数据库管理采用Navicat 16，整个系统使用IntelliJ IDEA环境进行开发。开发界面如图4-1所示。",
         ),
         first_line_indent_chars=2,
     )
@@ -745,6 +936,7 @@ def build_final_docx(
         add_heading_paragraph(document, "5.1 页面说明待补充", 2)
         add_paragraph(document, "当前尚未发现截图文件。先完成前端演示与 Playwright 截图，再补充本章节内容。", first_line_indent_chars=2)
 
+    disable_auto_update_fields(document)
     document.save(output_path)
 
 

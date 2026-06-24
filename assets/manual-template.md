@@ -15,7 +15,7 @@
 
 | 版本号 | 生成日期 | 作者 | 修订内容 |
 | --- | --- | --- | --- |
-| V1.0 |  | 孔祥鑫 | 初始版本 |
+| V1.0 | 2026-6-15 | 孔祥鑫 | 初始版本 |
 
 \newpage
 
@@ -58,7 +58,7 @@
 | 名称 | 基本环境 |
 | --- | --- |
 | 操作系统 | Windows 10 64位 |
-| 数据库软件 | MySQL8.0 |
+| 数据库软件 | PostgreSQL |
 | 开发软件 | Opencode，Claude Code，Codex，IntelliJ IDEA，Navicat 16 |
 | 开发语言 | {{FULLSTACK_LANGUAGES_WITH_VERSIONS}} |
 
@@ -66,7 +66,7 @@
 
 ### 4.3 软件开发环境
 
-本软件分为前端页面和后端业务逻辑，其中前端页面使用{{FRONTEND_LANGUAGE_WITH_VERSION}}进行开发，后端业务逻辑使用{{BACKEND_LANGUAGE_WITH_VERSION}}进行开发，数据库使用MySQL8.0，数据库管理采用Navicat 16，整个系统使用IntelliJ IDEA环境进行开发。开发界面如图4-1所示。
+本软件分为前端页面和后端业务逻辑，其中前端页面使用{{FRONTEND_LANGUAGE_WITH_VERSION}}进行开发，后端业务逻辑使用{{BACKEND_LANGUAGE_WITH_VERSION}}进行开发，数据库使用PostgreSQL，数据库管理采用Navicat 16，整个系统使用IntelliJ IDEA环境进行开发。开发界面如图4-1所示。
 
 [在此粘贴开发界面图片]
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -66,6 +67,37 @@ def locate_generated_docx(docs_dir: Path, display_name: str) -> Path:
     raise FileNotFoundError(f"No codeclean output found in {docs_dir}")
 
 
+def cleanup_final_docs(docs_dir: Path, system_name: str, version: str) -> list[Path]:
+    allowed_names = {
+        f"{system_name}合作开发协议.docx",
+        f"{system_name}-系统说明书.docx",
+        f"{system_name}代码源程序{version}.docx",
+    }
+    missing = [name for name in sorted(allowed_names) if not (docs_dir / name).exists()]
+    if missing:
+        raise FileNotFoundError(
+            "Final docs cleanup requires all final DOCX files to exist first: "
+            + ", ".join(missing)
+        )
+
+    removed: list[Path] = []
+    docs_root = docs_dir.resolve()
+
+    for child in docs_dir.iterdir():
+        resolved = child.resolve()
+        if resolved.parent != docs_root:
+            raise RuntimeError(f"Refusing to remove path outside docs directory: {child}")
+        if child.name in allowed_names:
+            continue
+        if child.is_dir():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
+        removed.append(child)
+
+    return removed
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Wrap the user-installed codeclean CLI and rename the generated code-source DOCX.",
@@ -110,7 +142,13 @@ def main() -> int:
         final_docx.unlink()
     generated_docx.replace(final_docx)
 
+    removed_paths = cleanup_final_docs(docs_dir, system_name, version)
+
     print(f"Code source DOCX: {final_docx}")
+    if removed_paths:
+        print("Cleaned docs folder, removed non-final working files:")
+        for path in removed_paths:
+            print(f"- {path}")
     return 0
 
 
