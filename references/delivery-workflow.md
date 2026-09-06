@@ -2,15 +2,15 @@
 
 ## Checklist
 
-1. Extract the system name and user roles from the brief.
-2. Plan 8-10 first-level modules and keep that module map stable.
-3. Create the output tree with `scripts/prepare_output_tree.py`.
+1. Extract the system name and user roles, then ask once for document dates, technical style, and technical highlights unless already supplied.
+2. If the user does not answer and later asks to continue, use the documented defaults without asking again. Plan 8-10 first-level modules and keep that module map stable.
+3. Create the output tree with `scripts/prepare_output_tree.py` and record the resolved intake preferences in `delivery-manifest.json`.
 4. Save the module list to `<system-folder>/docs/Template/module-plan.md`.
 5. Build the full-stack code pack under `<system-folder>/code/` from the module map.
 6. Run `scripts/validate_fullstack_code.py` and fix the code pack if validation fails.
 7. Choose one layout archetype from the 10 fixed options, then build the runnable frontend demo under `<system-folder>/demo/` from the same module map.
 8. Run `scripts/validate_frontend_demo.py` and fix the demo if the static validation fails.
-9. Run `scripts/validate_frontend_build.py`, then build the demo.
+9. If dependencies are missing, install packages only with domestic mirrors, then run `scripts/validate_frontend_build.py` and build the demo.
 10. Start a preview or static server from the built output and run `scripts/validate_frontend_routes.py`.
 11. Capture Playwright screenshots from the validated preview into `<system-folder>/photos/`.
 12. Generate `<system-name>合作开发协议.docx` with `scripts/build_agreement_docx.py`; the agreement is fixed to 甲乙双方.
@@ -35,6 +35,8 @@
 - Treat a failed full-stack code validation as blocking. Do not create the demo, screenshots, documents, or code-source `.docx` until it passes.
 - Leave integration seams as TODO comments only when necessary.
 - Do not spend the majority of the task on dependency fixes, environment debugging, or tests.
+- Never use the agreement party or manual author in source, comments, tests, SQL seeds, configuration, filenames, or mock data. Generate fictional identities instead.
+- Treat protected-identity findings from `scripts/validate_fullstack_code.py` as blocking errors.
 
 ## Runnable frontend rules
 
@@ -49,6 +51,10 @@
 - Ensure the demo passes `scripts/validate_frontend_build.py` before trying to use a build-first screenshot workflow.
 - Keep mock records consistent between primary pages and their secondary pages such as detail, edit, and drill-down views.
 - Prefer a shared source of mock truth per module so the same entity appears coherently in list and detail states.
+- Use only fictional people in mock data; do not reuse any identity from the agreement or manual.
+- Treat protected-identity findings from `scripts/validate_frontend_demo.py` as blocking errors.
+- When installing frontend packages, use `npm install --registry=https://registry.npmmirror.com`, `npm ci --registry=https://registry.npmmirror.com`, or `pnpm install --registry=https://registry.npmmirror.com`.
+- When running package-backed tooling through npx, use `npx --registry=https://registry.npmmirror.com ...`.
 
 ## Screenshot rules
 
@@ -57,6 +63,9 @@
 - Run route smoke checks before opening Playwright on the target pages.
 - Use Playwright, not manual screenshots.
 - Wait for the page to settle before capturing.
+- Run `python scripts/verify_local_playwright.py` before screenshots.
+- Capture routes with `python scripts/capture_screenshots.py`; use the machine-level Python Playwright and cached Chromium.
+- Do not install or update Playwright packages or browsers during a delivery run. If local verification fails, stop the screenshot stage and report the missing machine prerequisite.
 - Favor full-page screenshots only when it helps readability; otherwise use viewport captures with consistent dimensions.
 - Capture the highest-value pages first: login or landing, dashboard, the most important module pages, record detail, create or edit flow, analytics or settings if present.
 - If a secondary page is not backed by a real record from the related primary page, skip that screenshot instead of capturing a disconnected view.
@@ -67,12 +76,12 @@
 - Prefer `scripts/build_agreement_docx.py` for the cooperation development agreement.
 - The cooperation agreement is fixed to two parties: 甲方 and 乙方.
 - Do not generate 丙方 or any larger party count unless the user explicitly asks to redesign the agreement template.
-- The first party is fixed as `甲方：孔祥鑫` and `身份证号：140522200002262315`; subsequent party fields stay blank unless supplied by the user.
+- Load the fixed 甲方 name and ID only from `assets/agreement-template.md`; subsequent party fields stay blank unless supplied by the user.
 - The final filename is `<system-name>合作开发协议.docx` in `<system-folder>/docs/`.
 - The title must be `合作开发协议`, 宋体 一号, centered. Body must be 宋体 小四, first-line indent 2 characters, single line spacing.
 - Use the system name directly as the project software name. Do not append `平台软件`.
 - Use two-party wording throughout: `甲乙双方`, `对方`, `另一方`, and `双方`.
-- The agreement date is fixed as `2026年4月15日`.
+- Use the intake date recorded in `delivery-manifest.json`; default to `2026年4月15日` when no date was supplied.
 
 ## Manual rules
 

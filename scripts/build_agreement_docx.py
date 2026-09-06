@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Build the cooperation development agreement DOCX for a system delivery pack.
+Build the cooperation development agreement DOCX for a ruanzhu delivery pack.
 """
 
 from __future__ import annotations
@@ -15,6 +15,8 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
+
+from document_defaults import load_agreement_party_a
 
 FONT_NAME = "宋体"
 TITLE_SIZE_PT = 26
@@ -95,7 +97,13 @@ def default_agreement_date() -> str:
     return DEFAULT_AGREEMENT_DATE
 
 
-def build_agreement_lines(system_name: str, party_count: int, agreement_date: str) -> list[str]:
+def build_agreement_lines(
+    system_name: str,
+    party_count: int,
+    agreement_date: str,
+    party_a_name: str,
+    party_a_id: str,
+) -> list[str]:
     if party_count != 2:
         raise ValueError("合作开发协议模板固定为甲乙双方，不再生成丙方及以上。")
     labels = PARTY_LABELS[:party_count]
@@ -106,8 +114,8 @@ def build_agreement_lines(system_name: str, party_count: int, agreement_date: st
     lines = []
     for index, label in enumerate(labels):
         if index == 0:
-            lines.append(f"{label}方：孔祥鑫")
-            lines.append("身份证号：140522200002262315")
+            lines.append(f"{label}方：{party_a_name}")
+            lines.append(f"身份证号：{party_a_id}")
         else:
             lines.append(f"{label}方：")
             lines.append("身份证号：")
@@ -222,14 +230,23 @@ def main() -> int:
 
     root = Path(args.root).resolve()
     system_display_name = display_system_name(args.system_name.strip())
+    manifest = load_manifest(root, args.system_name.strip())
     system_dir = resolve_system_dir(root, args.system_name.strip())
     docs_dir = system_dir / "docs"
     template_dir = docs_dir / "Template"
     docs_dir.mkdir(parents=True, exist_ok=True)
     template_dir.mkdir(parents=True, exist_ok=True)
 
-    agreement_date = args.agreement_date.strip() if args.agreement_date else default_agreement_date()
-    lines = build_agreement_lines(system_display_name, args.party_count, agreement_date)
+    preferred_date = manifest.get("delivery_preferences", {}).get("agreement_date", "")
+    agreement_date = args.agreement_date.strip() if args.agreement_date else preferred_date or default_agreement_date()
+    party_a_name, party_a_id = load_agreement_party_a()
+    lines = build_agreement_lines(
+        system_display_name,
+        args.party_count,
+        agreement_date,
+        party_a_name,
+        party_a_id,
+    )
 
     document = Document()
     configure_document(document)

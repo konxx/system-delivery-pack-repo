@@ -10,6 +10,8 @@ import json
 import re
 from pathlib import Path
 
+from document_defaults import load_manual_author
+
 REVISION_DATE = "2026-6-15"
 DATABASE_SOFTWARE = "PostgreSQL"
 
@@ -198,6 +200,7 @@ def main() -> int:
     )
     parser.add_argument("--root", default=".", help="Workspace root")
     parser.add_argument("--system-name", default="", help="Display name of the system")
+    parser.add_argument("--revision-date", default="", help="Override the manual revision date")
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
@@ -206,6 +209,9 @@ def main() -> int:
     system_name = requested_system_name or manifest.get("system_name") or "业务系统"
     title_name = display_system_name(system_name)
     short_name = derive_short_name(system_name)
+    preferred_date = manifest.get("delivery_preferences", {}).get("manual_revision_date", "")
+    revision_date = args.revision_date.strip() or preferred_date or REVISION_DATE
+    author = load_manual_author()
 
     safe_name = manifest.get("system_folder") or safe_path_name(system_name)
     system_dir = root / safe_name
@@ -226,7 +232,8 @@ def main() -> int:
         "system_name": title_name,
         "short_name": "",
         "version": "V1.0",
-        "author": "孔祥鑫",
+        "author": author,
+        "revision_date": revision_date,
         "purpose_text": "",
         "function_text": "",
         "development_environment_text": "",
@@ -245,7 +252,7 @@ def main() -> int:
         "",
         "| 版本号 | 生成日期 | 作者 | 修订内容 |",
         "| --- | --- | --- | --- |",
-        f"| V1.0 | {REVISION_DATE} | 孔祥鑫 | 初始版本 |",
+        f"| V1.0 | {revision_date} | {author} | 初始版本 |",
         "",
         "\\newpage",
         "",
@@ -259,7 +266,7 @@ def main() -> int:
         "",
         "软件类别：应用软件",
         "",
-        "著作权人：孔祥鑫",
+        f"著作权人：{author}",
         "",
         "\\newpage",
         "",
@@ -329,7 +336,7 @@ def main() -> int:
                     "",
                     f"图5-{index} [待填写页面名称]",
                     "",
-                    "[请用约 200 字中文自然语言描述该页面，要求语言干净自然，不要机械模板化。]",
+                    "[请用80-120字中文自然语言描述该页面，写清页面用途和一两项主要操作，避免机械模板化。]",
                     "",
                     "\\newpage",
                 ]

@@ -9,6 +9,8 @@ import argparse
 import json
 from pathlib import Path
 
+from identity_guard import find_identity_leaks
+
 
 def load_manifest(root: Path, system_name: str) -> dict:
     system_dir = root / system_name
@@ -25,6 +27,15 @@ def validate_demo(demo_dir: Path) -> tuple[list[str], list[str]]:
     if not demo_dir.exists():
         errors.append(f"Missing demo directory: {demo_dir}")
         return errors, warnings
+
+    identity_leaks = find_identity_leaks(demo_dir)
+    for path in identity_leaks[:10]:
+        errors.append(
+            f"Document-only personal identity appears in demo code or mock data: {path.relative_to(demo_dir)}. "
+            "Replace it with a fictional identity."
+        )
+    if len(identity_leaks) > 10:
+        errors.append(f"Demo contains {len(identity_leaks) - 10} additional identity leaks.")
 
     package_json = demo_dir / "package.json"
     index_html = demo_dir / "index.html"
@@ -114,4 +125,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

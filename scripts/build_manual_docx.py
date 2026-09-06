@@ -18,6 +18,8 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
+from document_defaults import load_manual_author
+
 PANDOC_PATH = Path(r"C:\Program Files\Pandoc\pandoc.exe")
 HEADER_SIZE_PT = 9
 REVISION_DATE = "2026-6-15"
@@ -285,10 +287,8 @@ def build_function_paragraph(system_name: str, modules: list[str]) -> str:
 
 def screenshot_paragraph(title: str) -> str:
     return (
-        f"{title}页面用于展示当前模块的主要功能界面和核心业务内容，页面中通常包含关键数据区、"
-        "业务入口、状态信息、筛选条件以及用户完成本模块任务所需的主要操作控件。通过该页面，"
-        "使用人员可以快速理解本模块承担的业务用途、信息结构和操作路径，并结合按钮、列表、"
-        "统计区或详情区域完成查询、录入、查看或处理等常用操作，是系统日常使用与演示说明中的重要页面。"
+        f"{title}用于集中查看本模块的主要记录和当前状态。使用人员可按条件筛选内容，进入详情完成"
+        "新增、编辑或处理操作，并根据页面提示跟进后续事项。"
     )
 
 
@@ -628,11 +628,11 @@ def add_toc_field(paragraph) -> None:
     append_run(fld_end)
 
 
-def add_revision_table(document: Document, author: str) -> None:
+def add_revision_table(document: Document, author: str, revision_date: str) -> None:
     table = document.add_table(rows=2, cols=4)
     table.style = "Table Grid"
     headers = ["版本号", "生成日期", "作者", "修订内容"]
-    values = ["V1.0", REVISION_DATE, author, "初始版本"]
+    values = ["V1.0", revision_date, author, "初始版本"]
     for index, header in enumerate(headers):
         table.cell(0, index).text = header
         table.cell(1, index).text = values[index]
@@ -691,6 +691,8 @@ def render_markdown_draft(
     modules: list[str],
     screenshots: list[Path],
     manual_content: dict,
+    author: str,
+    revision_date: str,
 ) -> str:
     parts = [
         f"{system_name}[简称：{short_name}]V1.0",
@@ -709,7 +711,7 @@ def render_markdown_draft(
         "",
         "| 版本号 | 生成日期 | 作者 | 修订内容 |",
         "| --- | --- | --- | --- |",
-        f"| V1.0 | {REVISION_DATE} | 孔祥鑫 | 初始版本 |",
+        f"| V1.0 | {revision_date} | {author} | 初始版本 |",
         "",
         "\\newpage",
         "",
@@ -723,7 +725,7 @@ def render_markdown_draft(
         "",
         "软件类别：应用软件",
         "",
-        "著作权人：孔祥鑫",
+        f"著作权人：{author}",
         "",
         "\\newpage",
         "",
@@ -819,6 +821,7 @@ def build_final_docx(
     screenshots: list[Path],
     manual_content: dict,
     author: str,
+    revision_date: str,
 ) -> None:
     document = Document()
     section = document.sections[0]
@@ -850,7 +853,7 @@ def build_final_docx(
     document.add_page_break()
 
     add_heading_paragraph(document, "修订记录", 1)
-    add_revision_table(document, author)
+    add_revision_table(document, author, revision_date)
 
     document.add_page_break()
 
@@ -956,7 +959,8 @@ def main() -> int:
     )
     parser.add_argument("--root", default=".", help="Workspace root")
     parser.add_argument("--system-name", required=True, help="Display name of the system")
-    parser.add_argument("--author", default="孔祥鑫", help="Author name for revision history")
+    parser.add_argument("--author", default="", help="Override the document-template author")
+    parser.add_argument("--revision-date", default="", help="Override the manual revision date")
     parser.add_argument("--short-name", default="", help="Optional short product name")
     args = parser.parse_args()
 
@@ -985,6 +989,14 @@ def main() -> int:
     fullstack_languages = infer_fullstack_languages(system_dir)
     modules = infer_modules(system_dir)
     manual_content = load_manual_content(system_dir)
+    author = args.author.strip() or str(manual_content.get("author", "")).strip() or load_manual_author()
+    preferred_date = manifest.get("delivery_preferences", {}).get("manual_revision_date", "")
+    revision_date = (
+        args.revision_date.strip()
+        or str(manual_content.get("revision_date", "")).strip()
+        or preferred_date
+        or REVISION_DATE
+    )
 
     errors, warnings = validate_manual_content(manual_content, screenshots)
     for warning in warnings:
@@ -1004,6 +1016,8 @@ def main() -> int:
         modules=modules,
         screenshots=screenshots,
         manual_content=manual_content,
+        author=author,
+        revision_date=revision_date,
     )
 
     markdown_path = template_dir / f"{safe_name}-manual-draft.md"
@@ -1030,7 +1044,8 @@ def main() -> int:
         modules=modules,
         screenshots=screenshots,
         manual_content=manual_content,
-        author=args.author,
+        author=author,
+        revision_date=revision_date,
     )
 
     print(f"Modules: {modules}")

@@ -10,6 +10,8 @@ import json
 import re
 from pathlib import Path
 
+from identity_guard import find_identity_leaks
+
 
 EXCLUDED_DIRS = {
     ".git",
@@ -120,6 +122,15 @@ def validate_code_pack(system_dir: Path) -> tuple[list[str], list[str]]:
     if not code_dir.exists():
         errors.append(f"Missing code directory: {code_dir}")
         return errors, warnings
+
+    identity_leaks = find_identity_leaks(code_dir)
+    for path in identity_leaks[:10]:
+        errors.append(
+            f"Document-only personal identity appears in generated code: {path.relative_to(system_dir)}. "
+            "Replace it with fictional mock data."
+        )
+    if len(identity_leaks) > 10:
+        errors.append(f"Generated code contains {len(identity_leaks) - 10} additional identity leaks.")
 
     if module_count < 8 or module_count > 10:
         errors.append("docs/Template/module-plan.md must list 8-10 first-level modules before code validation.")

@@ -144,10 +144,10 @@ def collect_quality_findings(path: str, text: str, *, screenshot: bool = False) 
 
     char_count = chinese_char_count(stripped)
     if screenshot:
-        if char_count < 120:
-            findings.append(Finding("warning", path, f"截图说明偏短（{char_count} 个中文字符），建议接近 200 字。"))
-        elif char_count > 280:
-            findings.append(Finding("warning", path, f"截图说明偏长（{char_count} 个中文字符），建议压到约 200 字。"))
+        if char_count < 60:
+            findings.append(Finding("warning", path, f"截图说明偏短（{char_count} 个中文字符），建议补充到 80-120 字。"))
+        elif char_count > 150:
+            findings.append(Finding("warning", path, f"截图说明偏长（{char_count} 个中文字符），建议压缩到 80-120 字。"))
     else:
         if char_count > 240:
             findings.append(Finding("warning", path, f"段落偏长（{char_count} 个中文字符），建议控制在 200 字左右。"))

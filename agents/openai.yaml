@@ -1,5 +1,4 @@
 interface:
-  display_name: "System Delivery Pack"
+  display_name: "Ruanzhu"
   short_description: "Generate code, screenshots, and docs"
-  default_prompt: "Use $system-delivery-pack to generate a system package with code, screenshots, agreement, and manual."
-
+  default_prompt: "Use $ruanzhu to generate a complete system package. Ask once for document dates, technical style, and technical highlights before creating files."

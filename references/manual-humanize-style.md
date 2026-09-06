@@ -11,9 +11,9 @@ Polish the Chinese manual copy locally. Do not call OpenAI, Opencode, Claude, or
 - Preserve factual content: system name, module names, roles, screenshots, actions, version, dates, author, tech stack, and figure order must not change.
 - Write like a product handoff note, not a marketing page.
 - Prefer concrete screen/action words: `查看`, `筛选`, `新增`, `编辑`, `审核`, `导出`, `统计`, `配置`, `查看详情`.
-- Connect each screenshot paragraph to its module, visible information, user goal, and main operations.
+- Give each screenshot paragraph a concrete page purpose and one or two key visible items or actions. Mention its module or user role only when that context is useful.
 - Keep `二、软件用途` and `三、软件功能` within about 200 Chinese characters each.
-- Keep each `五、软件使用` screenshot paragraph around 200 Chinese characters; do not use one-line captions as descriptions.
+- Keep each `五、软件使用` screenshot paragraph within 80-120 Chinese characters. Prefer two or three plain sentences; do not use a one-line caption or pad the paragraph with generic background.
 
 ## Pass 2: Cleanup
 

@@ -74,8 +74,8 @@ Prefer high-fidelity `.docx` generation with `python-docx` for final formatting.
   - 修订内容
 - First data row:
   - 版本号: `V1.0`
-  - 生成日期: `2026-6-15`
-  - 作者: `孔祥鑫`
+  - 生成日期: use the intake date from `delivery-manifest.json`; default to `2026-6-15`
+  - 作者: use the fixed author from `assets/manual-template.md`
   - 修订内容: `初始版本`
 
 ### Page 4: 一、软件介绍
@@ -89,7 +89,7 @@ Prefer high-fidelity `.docx` generation with `python-docx` for final formatting.
   - 简称：`{{SYSTEM_SHORT_NAME}}`
   - 版本号：`V1.0`
   - 软件类别：`应用软件`
-  - 著作权人：`孔祥鑫`
+  - 著作权人：use the fixed author from `assets/manual-template.md`
 
 ### Page 5: 二、软件用途
 
@@ -167,8 +167,8 @@ Prefer high-fidelity `.docx` generation with `python-docx` for final formatting.
 - Each screenshot subsection must start on a new page.
 - For each subsection:
   - include the screenshot image
-  - include one natural paragraph around 200 Chinese characters
-  - the paragraph must cover image description, page purpose, core information, and main operations
+  - include one short, natural paragraph of 80-120 Chinese characters
+  - focus on the page purpose plus one or two key visible items or operations; do not mechanically enumerate every element
   - place the caption below the image
   - caption typography target: 宋体、小四、居中
 
